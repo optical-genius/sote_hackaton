@@ -1,23 +1,23 @@
 import React, { useState } from 'react';
-import { 
-  User, 
-  MessageSquare, 
-  FileText, 
-  ArrowRight, 
-  CheckCircle2, 
-  AlertCircle, 
-  Heart, 
-  Sun, 
-  BarChart3, 
-  Zap, 
-  Search, 
-  HelpCircle, 
-  ShieldCheck, 
+import {
+  User,
+  MessageSquare,
+  FileText,
+  ArrowRight,
+  CheckCircle2,
+  AlertCircle,
+  Heart,
+  Sun,
+  BarChart3,
+  Zap,
+  Search,
+  HelpCircle,
+  ShieldCheck,
   ChevronRight,
   Send
 } from 'lucide-react';
 
-export default function HoivaDoctorHomeView({
+export default function HoivaDoctorHomeView ({
   onNavigateToClient,
   onNavigateToChat,
   onNavigateToSummary,
@@ -86,7 +86,7 @@ export default function HoivaDoctorHomeView({
     <div className="doctor-dashboard-container">
       {/* LEFT / CENTER MAIN COLUMN */}
       <div className="doctor-main-column">
-        
+
         {/* HERO GREETING BANNER */}
         <section className="doctor-hero-banner" aria-label="Tervetulotoivotus">
           <div className="hero-banner-content">
@@ -95,16 +95,16 @@ export default function HoivaDoctorHomeView({
               tervetuloa takaisin!
             </h1>
             <p className="hero-banner-desc">
-              Tänään sinulla on 3 asiakasta. Autamme sinua saamaan nopeasti valmiit esitiedot ja 
+              Tänään sinulla on 3 asiakasta. Autamme sinua saamaan nopeasti valmiit esitiedot ja
               ehdotamme puuttuvia tietoja, jotta voit keskittyä tärkeimpään – asiakkaaseen.
             </p>
           </div>
 
           <div className="hero-banner-visual">
             <div className="hero-nurse-card">
-              <img 
-                src="/images/nurse_hero.jpg" 
-                alt="Maija Korhonen, Sairaanhoitaja" 
+              <img
+                src="/images/nurse_hero.jpg"
+                alt="Maija Korhonen, Sairaanhoitaja"
                 className="hero-nurse-img"
               />
               <div className="hero-handwritten-note">
@@ -129,8 +129,8 @@ export default function HoivaDoctorHomeView({
               </div>
               <h3 className="quick-card-title">Uusi asiakas</h3>
               <p className="quick-card-desc">Aloita uuden asiakkaan palvelutarpeen arviointi.</p>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="quick-card-btn btn-blue"
                 onClick={() => onNavigateToClient && onNavigateToClient()}
               >
@@ -146,8 +146,8 @@ export default function HoivaDoctorHomeView({
               </div>
               <h3 className="quick-card-title">Keskustele asiakkaan kanssa</h3>
               <p className="quick-card-desc">Täydennä puuttuvia tietoja luonnollisella kielellä.</p>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="quick-card-btn btn-emerald"
                 onClick={() => onNavigateToChat && onNavigateToChat()}
               >
@@ -163,8 +163,8 @@ export default function HoivaDoctorHomeView({
               </div>
               <h3 className="quick-card-title">Tarkista valmiit tiedot</h3>
               <p className="quick-card-desc">Katso ja vahvista asiakkaan ennakkotiedot ennen asiantuntijalle lähettämistä.</p>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="quick-card-btn btn-purple"
                 onClick={() => onNavigateToSummary && onNavigateToSummary()}
               >
@@ -179,8 +179,8 @@ export default function HoivaDoctorHomeView({
         <section className="doctor-section" aria-labelledby="tanaan-heading">
           <div className="section-header-flex">
             <h2 id="tanaan-heading" className="section-main-title">Tänään</h2>
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="section-link-btn"
               onClick={() => onNavigateToClient && onNavigateToClient()}
             >
@@ -239,8 +239,8 @@ export default function HoivaDoctorHomeView({
                   </div>
 
                   <div className="patient-action-col">
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       className="patient-row-btn"
                       onClick={() => {
                         if (p.submissionId && onNavigateToSummary) {
@@ -264,7 +264,7 @@ export default function HoivaDoctorHomeView({
 
       {/* RIGHT WIDGETS COLUMN */}
       <aside className="doctor-widgets-column" aria-label="Oheistiedot ja pikatoiminnot">
-        
+
         {/* WIDGET 1: TÄRKEÄÄ TÄNÄÄN */}
         <div className="widget-card widget-notice-card">
           <div className="widget-notice-header">
@@ -276,8 +276,8 @@ export default function HoivaDoctorHomeView({
           <p className="widget-notice-body">
             Muista tarkistaa, että kaikki asiakkaan lääkitystiedot ovat ajan tasalla ennen lähettämistä.
           </p>
-          <a 
-            href="#laakitysohje" 
+          <a
+            href="#laakitysohje"
             className="widget-notice-link"
             onClick={(e) => {
               e.preventDefault();
@@ -332,8 +332,8 @@ export default function HoivaDoctorHomeView({
             <h4>Pikatoiminnot</h4>
           </div>
           <div className="quick-actions-menu">
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="quick-action-item"
               onClick={() => {
                 const query = prompt('Kirjoita asiakkaan nimi tai henkilötunnus:');
@@ -347,8 +347,8 @@ export default function HoivaDoctorHomeView({
               <ChevronRight size={16} className="action-item-arrow" />
             </button>
 
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="quick-action-item"
               onClick={() => alert('Viesti tiimille:\nHoitotiimin sisäinen viestintäkanava on avattu.')}
             >
@@ -359,10 +359,10 @@ export default function HoivaDoctorHomeView({
               <ChevronRight size={16} className="action-item-arrow" />
             </button>
 
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="quick-action-item"
-              onClick={() => alert('HoivaPolku - Tuki ja ohjeet:\nKäyttötuki palvelee ma-pe klo 08-16 puh. 029 123 4567')}
+              onClick={() => alert('Sopi - Tuki ja ohjeet:\nKäyttötuki palvelee ma-pe klo 08-16 puh. 029 123 4567')}
             >
               <div className="action-item-left">
                 <HelpCircle size={16} />
@@ -374,8 +374,8 @@ export default function HoivaDoctorHomeView({
         </div>
 
         {/* WIDGET 5: TIETOSUOJA JA SUOSTUMUKSET */}
-        <div 
-          className="widget-card widget-privacy-card" 
+        <div
+          className="widget-card widget-privacy-card"
           onClick={onOpenPrivacy}
           role="button"
           tabIndex={0}

@@ -879,7 +879,7 @@ select:focus-visible {
 }
 
 /* ==========================================================================
-   HoivaPolku Design System & Layout (Matching User Reference)
+   Sopi Design System & Layout (Matching User Reference)
    ========================================================================== */
 
 .hoiva-app-layout {
@@ -913,7 +913,7 @@ select:focus-visible {
   padding-left: 6px;
 }
 
-/* Slow organic resting pulse heartbeat for HoivaPolku brand logo */
+/* Slow organic resting pulse heartbeat for Sopi brand logo */
 @keyframes slowHeartbeat {
   0% {
     transform: scale(1);
@@ -5035,7 +5035,7 @@ select:focus-visible {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   COOKIE CONSENT BANNER & PRIVACY DIALOG (HoivaPolku / LUVN)
+   COOKIE CONSENT BANNER & PRIVACY DIALOG (Sopi / LUVN)
    ───────────────────────────────────────────────────────────────────────────── */
 @keyframes cookieFadeSlideIn {
   from {

@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Cookie, 
-  ShieldCheck, 
-  Sliders, 
-  Check, 
-  ChevronDown, 
-  ChevronUp, 
+import {
+  Cookie,
+  ShieldCheck,
+  Sliders,
+  Check,
+  ChevronDown,
+  ChevronUp,
   Lock,
   Info
 } from 'lucide-react';
 
 export const COOKIE_STORAGE_KEY = 'luvn_cookie_consent';
 
-export default function CookieConsentBanner({ t, onConsentChange }) {
+export default function CookieConsentBanner ({ t, onConsentChange }) {
   // Check localStorage on mount
   const [consent, setConsent] = useState(() => {
     try {
@@ -85,9 +85,9 @@ export default function CookieConsentBanner({ t, onConsentChange }) {
   };
 
   return (
-    <div 
+    <div
       className={`cookie-consent-overlay ${isClosing ? 'cookie-closing' : ''}`}
-      role="region" 
+      role="region"
       aria-label={t?.cookieTitle || 'Evästeet ja tietosuoja'}
     >
       <div className="cookie-consent-card">
@@ -104,7 +104,7 @@ export default function CookieConsentBanner({ t, onConsentChange }) {
               </span>
             </div>
             <h3 className="cookie-title">
-              {t?.cookieTitle || 'Evästeet ja tietosuoja HoivaPolku-palvelussa'}
+              {t?.cookieTitle || 'Evästeet ja tietosuoja Sopi-palvelussa'}
             </h3>
           </div>
         </div>

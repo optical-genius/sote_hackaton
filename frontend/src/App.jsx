@@ -10,7 +10,7 @@ import DoctorPortal from './views/doctor/DoctorPortal';
 import { translations } from './i18n/translations';
 import { api } from './services/api';
 
-export default function App() {
+export default function App () {
   // Localization (persisted in localStorage)
   const [lang, setLang] = useState(() => {
     try {
@@ -356,7 +356,7 @@ export default function App() {
 
   return (
     <div className="hoiva-app-layout">
-      {/* HoivaPolku Left Navigation Sidebar */}
+      {/* Sopi Left Navigation Sidebar */}
       <Sidebar
         activeView={activeView}
         activeTab={activeTab}
@@ -438,7 +438,7 @@ export default function App() {
             />
           )}
         </main>
-        
+
         {/* LUVN Healthcare Site Footer with GDPR, Storage & AI details */}
         <Footer
           onOpenPrivacyTab={handleOpenPrivacyTab}

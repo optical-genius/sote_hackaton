@@ -1,18 +1,18 @@
 import React from 'react';
-import { 
-  ShieldCheck, 
-  Database, 
-  Cpu, 
-  Cookie, 
-  Eye, 
-  Phone, 
-  Heart, 
+import {
+  ShieldCheck,
+  Database,
+  Cpu,
+  Cookie,
+  Eye,
+  Phone,
+  Heart,
   ExternalLink,
   Lock,
   CheckCircle2
 } from 'lucide-react';
 
-export default function Footer({ onOpenPrivacyTab, onOpenAccessibility, t }) {
+export default function Footer ({ onOpenPrivacyTab, onOpenAccessibility, t }) {
   const handleOpenPrivacy = (tab) => {
     if (onOpenPrivacyTab) {
       onOpenPrivacyTab(tab);
@@ -50,7 +50,7 @@ export default function Footer({ onOpenPrivacyTab, onOpenAccessibility, t }) {
               <div className="footer-brand-icon">
                 <Heart size={16} fill="white" color="white" />
               </div>
-              <span>HoivaPolku</span>
+              <span>Sopi</span>
             </div>
             <p className="footer-brand-desc">
               Länsi-Uudenmaan hyvinvointialueen digitaalinen esitieto- ja oirekartoituspalvelu. Auttaa hoitotiimiä valmistautumaan käyntiisi ja nopeuttaa hoitoon pääsyä.
@@ -84,10 +84,10 @@ export default function Footer({ onOpenPrivacyTab, onOpenAccessibility, t }) {
                 </button>
               </li>
               <li>
-                <a 
-                  href="https://tietosuoja.fi" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
+                <a
+                  href="https://tietosuoja.fi"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="footer-external-link"
                 >
                   <span>Tietosuojavaltuutetun toimisto</span>
@@ -150,10 +150,10 @@ export default function Footer({ onOpenPrivacyTab, onOpenAccessibility, t }) {
                 </button>
               </li>
               <li>
-                <a 
-                  href="https://www.kanta.fi" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
+                <a
+                  href="https://www.kanta.fi"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="footer-external-link"
                 >
                   <span>Kanta.fi potilastiedot</span>

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { 
-  X, 
-  ShieldCheck, 
-  Database, 
-  Cpu, 
-  Cookie, 
-  Lock, 
-  FileText, 
+import {
+  X,
+  ShieldCheck,
+  Database,
+  Cpu,
+  Cookie,
+  Lock,
+  FileText,
   ExternalLink,
   CheckCircle2,
   AlertCircle,
@@ -14,7 +14,7 @@ import {
   Server
 } from 'lucide-react';
 
-export default function PrivacyPolicyModal({
+export default function PrivacyPolicyModal ({
   isOpen,
   onClose,
   initialTab = 'gdpr',
@@ -33,15 +33,15 @@ export default function PrivacyPolicyModal({
   if (!isOpen) return null;
 
   return (
-    <div 
-      className="modal-backdrop" 
-      onClick={onClose} 
-      role="dialog" 
-      aria-modal="true" 
+    <div
+      className="modal-backdrop"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
       aria-labelledby="privacy-modal-title"
     >
-      <div 
-        className="privacy-modal-content" 
+      <div
+        className="privacy-modal-content"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -51,16 +51,16 @@ export default function PrivacyPolicyModal({
               <ShieldCheck size={22} color="#0284c7" />
             </div>
             <div>
-              <div className="privacy-header-sup">Länsi-Uudenmaan hyvinvointialue • HoivaPolku</div>
+              <div className="privacy-header-sup">Länsi-Uudenmaan hyvinvointialue • Sopi</div>
               <h2 id="privacy-modal-title" className="privacy-modal-title">
                 Tietosuoja, tietoturva ja tekoälyn periaatteet
               </h2>
             </div>
           </div>
-          <button 
-            type="button" 
-            className="modal-close-btn" 
-            onClick={onClose} 
+          <button
+            type="button"
+            className="modal-close-btn"
+            onClick={onClose}
             aria-label="Sulje"
           >
             <X size={20} />
@@ -218,7 +218,7 @@ export default function PrivacyPolicyModal({
                 <div>
                   <strong>Miten tekoäly käyttää tietojasi? (EU AI Act 50 artiklan ilmoitus)</strong>
                   <p>
-                    HoivaPolku hyödyntää tekoälyä (Medicus-malli) ainoastaan esitietojen tarkentamiseen ja hoitotiimin työn sujuvoittamiseen. Terveystietosi eivät koskaan päädy julkisille tekoäly-yhtiöille.
+                    Sopi hyödyntää tekoälyä (Medicus-malli) ainoastaan esitietojen tarkentamiseen ja hoitotiimin työn sujuvoittamiseen. Terveystietosi eivät koskaan päädy julkisille tekoäly-yhtiöille.
                   </p>
                 </div>
               </div>

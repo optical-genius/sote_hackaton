@@ -206,7 +206,7 @@ export const translations = {
     btnJumpDemo: "Katso ammattilaisnäkymä (demo)",
 
     // Cookies & Privacy
-    cookieTitle: "Evästeet ja tietosuoja HoivaPolku-palvelussa",
+    cookieTitle: "Evästeet ja tietosuoja Sopi-palvelussa",
     cookieDesc: "Käytämme evästeitä varmistaaksemme turvallisen Suomi.fi-tunnistautumisen, Kanta-yhteyden ja saavutettavuusvalintojen (kuten tekstikoon ja kontrastin) säilymisen. Emme koskaan luovuta terveystietojasi kaupallisiin tarkoituksiin tai mainontaan.",
     cookieBadgeGdpr: "EU GDPR & Kanta-yhteensopiva",
     cookieNecessaryTitle: "Välttämättömät evästeet (pakolliset)",
@@ -414,7 +414,7 @@ export const translations = {
     btnJumpDemo: "Öppna yrkesutbildad vy (demo)",
 
     // Cookies & Privacy
-    cookieTitle: "Kakor och dataskydd i HoivaPolku",
+    cookieTitle: "Kakor och dataskydd i Sopi",
     cookieDesc: "Vi använder kakor för att säkerställa trygg Suomi.fi-autentisering, Kanta-integration och att dina tillgänglighetsval sparas. Vi överlåter aldrig dina hälsouppgifter till kommersiella ändamål eller marknadsföring.",
     cookieBadgeGdpr: "EU GDPR & Kanta-kompatibel",
     cookieNecessaryTitle: "Nödvändiga kakor (obligatoriska)",
@@ -622,7 +622,7 @@ export const translations = {
     btnJumpDemo: "View professional dashboard (demo)",
 
     // Cookies & Privacy
-    cookieTitle: "Cookies and Data Privacy in HoivaPolku",
+    cookieTitle: "Cookies and Data Privacy in Sopi",
     cookieDesc: "We use cookies to ensure secure Suomi.fi authentication, reliable Kanta integration, and to preserve your accessibility settings (such as text size and contrast). We never share or sell your health data for commercial or advertising purposes.",
     cookieBadgeGdpr: "EU GDPR & Kanta Compliant",
     cookieNecessaryTitle: "Strictly Necessary Cookies (Required)",
