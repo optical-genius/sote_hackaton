@@ -343,8 +343,9 @@ async def _try_lm_studio(symptom_text: str, medications: List[str] = None) -> Op
         "Muista: kysymystekstien TÄYTYY viitata juuri näihin oireisiin."
     )
 
+    active_model = (os.getenv("MEDICUS_MODEL") or os.getenv("LM_STUDIO_MODEL") or _MODEL or "medicus").strip()
     payload = {
-        "model": _MODEL,
+        "model": active_model,
         "messages": [
             {"role": "system", "content": _SYSTEM_PROMPT},
             {"role": "user", "content": user_prompt}
@@ -354,17 +355,20 @@ async def _try_lm_studio(symptom_text: str, medications: List[str] = None) -> Op
         "stream": False
     }
 
-    for base_url in _BASE_URLS:
+    req_headers = {"Content-Type": "application/json"}
+    api_key = (os.getenv("MEDICUS_API_KEY") or os.getenv("LM_STUDIO_API_KEY") or _API_KEY or "").strip()
+    if api_key:
+        req_headers["Authorization"] = f"Bearer {api_key}"
+
+    base_urls = _get_base_urls()
+    for base_url in base_urls:
         try:
-            client_timeout = httpx.Timeout(connect=1.5, read=25.0, write=5.0, pool=5.0)
+            client_timeout = httpx.Timeout(connect=3.0, read=60.0, write=5.0, pool=5.0)
             async with httpx.AsyncClient(timeout=client_timeout) as client:
                 response = await client.post(
                     f"{base_url}/chat/completions",
                     json=payload,
-                    headers={
-                        "Authorization": f"Bearer {_API_KEY}",
-                        "Content-Type": "application/json"
-                    }
+                    headers=req_headers
                 )
                 if response.status_code == 200:
                     data = response.json()
