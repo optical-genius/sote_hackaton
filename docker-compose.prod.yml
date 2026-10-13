@@ -1,0 +1,77 @@
+services:
+  medicus:
+    image: ghcr.io/ggerganov/llama.cpp:server
+    container_name: sopi-medicus-model
+    restart: unless-stopped
+    command: >
+      -hf Mykes/medicus:medicus-Q4_K_M.gguf
+      --host 0.0.0.0
+      --port 8001
+      -c 4096
+      -t 8
+      --alias medicus
+    volumes:
+      - medicus_cache:/root/.cache/llama.cpp
+    networks:
+      - luvn-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8001/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 30s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sopi-backend
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - WHISPER_MODEL=${WHISPER_MODEL:-tiny}
+      - WHISPER_DEVICE=cpu
+      - WHISPER_COMPUTE_TYPE=int8
+      - MEDICUS_API_URL=http://medicus:8001/v1
+      - MEDICUS_MODEL=medicus
+      - LM_STUDIO_BASE_URL=http://medicus:8001/v1
+      - LM_STUDIO_MODEL=medicus
+    volumes:
+      - ./backend/hackathon_data:/app/hackathon_data
+      - whisper_models:/root/.cache/huggingface
+    depends_on:
+      medicus:
+        condition: service_healthy
+    networks:
+      - luvn-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: prod
+    container_name: sopi-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - luvn-network
+
+volumes:
+  medicus_cache:
+  whisper_models:
+
+networks:
+  luvn-network:
+    driver: bridge
