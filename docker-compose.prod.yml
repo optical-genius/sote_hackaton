@@ -4,7 +4,8 @@ services:
     container_name: sopi-medicus-model
     restart: unless-stopped
     command: >
-      -hf Mykes/medicus:medicus-Q4_K_M.gguf
+      --hf-repo Mykes/medicus
+      --hf-file medicus-Q4_K_M.gguf
       --host 0.0.0.0
       --port 8001
       -c 4096
@@ -16,10 +17,10 @@ services:
       - luvn-network
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8001/health || exit 1"]
-      interval: 15s
-      timeout: 10s
-      retries: 20
-      start_period: 30s
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 120s
 
   backend:
     build:
