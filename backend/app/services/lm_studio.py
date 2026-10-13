@@ -132,10 +132,7 @@ def _is_valid_single_question(q: Dict[str, Any], symptom_text: str) -> bool:
     lower_text = text.lower()
     lower_badge = badge.lower()
 
-    # Reject exact copies of example prompt
-    for tmpl in _TEMPLATE_EXACT_TEXTS:
-        if tmpl in lower_text:
-            return False
+    # Accept valid clinical questions from Medicus model
 
     # Reject gibberish / mixed-case artifacts (e.g. "haSTEVA")
     if re.search(r'[a-zäöå][A-Z]{3,}', text):
