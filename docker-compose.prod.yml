@@ -39,6 +39,7 @@ services:
       - MEDICUS_MODEL=medicus
       - LM_STUDIO_BASE_URL=http://medicus:8001/v1
       - LM_STUDIO_MODEL=medicus
+      - USE_REAL_AI_MODEL=${USE_REAL_AI_MODEL:-false}
     volumes:
       - ./backend/hackathon_data:/app/hackathon_data
       - whisper_models:/root/.cache/huggingface

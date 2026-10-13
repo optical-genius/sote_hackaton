@@ -73,20 +73,33 @@ Käynnistyksen jälkeen palvelut ovat käytettävissä:
 * **Backend API (FastAPI Swagger Docs):** [http://localhost:8000/docs](http://localhost:8000/docs)
 * **API Terveystarkistus:** [http://localhost:8000/health](http://localhost:8000/health)
 
-### 2. Valinnaiset ympäristömuuttujat (.env)
-Sovellus toimii **täysin ilman ulkoisia API-avaimia** laadukkaalla sisäänrakennetulla kliinisellä sääntö- ja kielimoottorilla. Haluttaessa ulkoinen LLM voidaan kytkeä:
+### 2. Tekoäly- ja ympäristömuuttujat (.env)
+Sovellus toimii **täysin itsenäisesti ilman ulkoisia API-avaimia**. Ympäristömuuttujalla `USE_REAL_AI_MODEL` hallitaan tekoälyn toimintatilaa:
+
 ```bash
-OPENAI_API_KEY=your-openai-api-key
-# tai
-GEMINI_API_KEY=your-gemini-api-key
+# Esitys- ja demotila (Oletus):
+# Palauttaa 2.0 sekunnin ajatusviiveen jälkeen jokaiselle 8 potilaalle räätälöidyt
+# kliiniset kysymykset. Kestää 100+ yhtäaikaista käyttäjää ilman jonoja.
+USE_REAL_AI_MODEL=false
+
+# Live LLM -tila:
+# Kytkeytyy paikalliseen tai pilvessä pyörivään Medicus-malliin (LM Studio / vLLM).
+# USE_REAL_AI_MODEL=true
 ```
+
+Katso tarkempi järjestelmä- ja REST API -opas tiedostosta: [USAGE.md](USAGE.md).
 
 ---
 
 ## 👥 Valmiit synteettiset testiprofiilit (Veil.AI)
 
-Sovelluksessa voi vaihtaa suoraan käyttöliittymästä esimerkkipotilaan profiilia:
-1. **Matti Virtanen (56 v, Espoo):** Alaselkäkipu, verenpainetauti, lääkityksenä Ramipril, Atorvastatin, Burana.
-2. **Aino Korhonen (78 v, Kirkkonummi):** Polven nivelrikko, eteisvärinä, asiointi tyttären (Leena) puolesta valtuutuksella, lääkityksenä Marevan, Metoprolol, Panadol Forte.
-3. **Jari Nieminen (42 v, Lohja):** Allerginen astma, pitkittynyt yskä, Salbutamol, penisilliiniallergia.
-4. **Sofia Mäkinen (31 v, Kauniainen):** Raskausajan neuvolaseuranta, monivitamiini, rautalisä.
+Käyttöliittymän yläpalkista voi vaihtaa suoraan minkä tahansa 8 potilaan profiilin:
+1. **Matti Virtanen (56 v, Espoo):** Alaselkäkipu (Lumbago `M54.5`), verenpainetauti, Burana lopetettu.
+2. **Juhani Korhonen (77 v, Espoo):** Polvinivelrikko (`M17`), T2 diabetes, vakava NSAID-allergia, valtuutettu asiointi.
+3. **Aino Lehtonen (33 v, Espoo):** Allerginen astma (`J45.0`), flunssa, yskä, avaavan lääkkeen tarve.
+4. **Sofia Mäkinen (31 v, Kauniainen):** Raskausajan neuvolaseuranta (`Z34`), virtsatieinfektioepäily.
+5. **Tapio Heikkinen (39 v, Espoo):** Monisairas: Polymyalgia rheumatica (`M35.3`), astma, verenpaine, Prednisolon.
+6. **Helena Koskinen (41 v, Espoo):** Krooninen monisairaus: 11 diagnoosia, nivelrikko (`M19.9`), T2 diabetes, uupumus.
+7. **Seija Nieminen (64 v, Espoo):** Ikääntynyt monisairas: 11 diagnoosia, polvinivelrikko (`M17.1`), NSAID-allergia.
+8. **Pentti Järvinen (72 v, Kirkkonummi):** Geriatrinen monisairas: Sydämen vajaatoiminta (`I50.9`), verenpaine, huimaus ja kaatumisriski.
+

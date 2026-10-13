@@ -34,13 +34,14 @@ async def analyze_symptom(req: AnalyzeSymptomRequest):
     """
     Analyze a patient's symptom description and return 2-6 context-aware
     clinical follow-up questions.
-    Prioritizes official LUVN validated protocols (Alaselkäkysely, GAD-7, PHQ-9),
-    then LM Studio medicus model, and finally deterministic rule-based fallback.
+    - If USE_REAL_AI_MODEL=false: uses fast-path patient-tailored questions with 2.0s delay.
+    - If USE_REAL_AI_MODEL=true: queries live LM Studio/Medicus model with graceful fallback.
     """
     result = await get_clinical_questions(
         symptom_text=req.symptom_text,
         medications=req.medications or [],
-        language=req.language or "fi"
+        language=req.language or "fi",
+        patient_id=req.patient_id
     )
     return result
 
@@ -67,12 +68,23 @@ async def generate_anamnesis(req: GenerateAnamnesisRequest):
 
 @router.get("/health")
 async def ai_health():
-    """Check Medicus / LM Studio connectivity."""
+    """Check Medicus / LM Studio connectivity and active operating mode."""
+    import os
     import httpx
     from ..services.lm_studio import _get_base_urls, _MODEL, _API_KEY
 
-    base_urls = _get_base_urls()
+    use_real_model = os.getenv("USE_REAL_AI_MODEL", "false").strip().lower() in ("true", "1", "yes")
 
+    if not use_real_model:
+        return {
+            "medicus_status": "instant_presentation_mode",
+            "use_real_ai_model": False,
+            "latency_simulation_sec": 2.0,
+            "cohort_patients_ready": 8,
+            "fallback": "rule_engine_active"
+        }
+
+    base_urls = _get_base_urls()
     for url in base_urls:
         try:
             async with httpx.AsyncClient(timeout=4.0) as client:
@@ -84,6 +96,7 @@ async def ai_health():
                 if r.status_code == 200:
                     return {
                         "medicus_status": "online",
+                        "use_real_ai_model": True,
                         "url": url,
                         "model": _MODEL,
                         "models_available": r.json()
@@ -91,6 +104,10 @@ async def ai_health():
         except Exception:
             continue
 
-    return {"medicus_status": "offline", "fallback": "rule_engine_active"}
+    return {
+        "medicus_status": "offline",
+        "use_real_ai_model": True,
+        "fallback": "rule_engine_active"
+    }
 
 

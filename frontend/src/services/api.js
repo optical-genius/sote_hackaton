@@ -95,12 +95,13 @@ export const api = {
    * 2 context-aware clinical follow-up questions.
    * Falls back to rule engine if LM Studio unavailable.
    */
-  async analyzeSymptom(symptomText, medications = [], language = 'fi') {
+  async analyzeSymptom(symptomText, medications = [], language = 'fi', patientId = null) {
     const res = await fetch(`${API_BASE}/ai/analyze-symptom`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         symptom_text: symptomText,
+        patient_id: patientId,
         medications: medications,
         language: language
       })

@@ -332,7 +332,7 @@ export default function CitizenHomeView ({
     setAiLoading(true);
     try {
       const medNames = localMeds.filter(m => m.is_active).map(m => `${m.name} ${m.dosage}`);
-      const result = await api.analyzeSymptom(reasonForVisit, medNames, lang);
+      const result = await api.analyzeSymptom(reasonForVisit, medNames, lang, patient?.id);
       setAiQuestions(result.questions || []);
       setAiSource(result.source);
       setMatchedForm(result.matched_form || null);
@@ -343,7 +343,7 @@ export default function CitizenHomeView ({
     } finally {
       setAiLoading(false);
     }
-  }, [reasonForVisit, localMeds, lang]);
+  }, [reasonForVisit, localMeds, lang, patient?.id]);
 
   // ── Voice
   const startRecording = async () => {

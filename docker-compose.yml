@@ -19,6 +19,7 @@ services:
       - LM_STUDIO_BASE_URL=${LM_STUDIO_BASE_URL:-}
       - LM_STUDIO_MODEL=${LM_STUDIO_MODEL:-medicus}
       - LM_STUDIO_API_KEY=${LM_STUDIO_API_KEY:-}
+      - USE_REAL_AI_MODEL=${USE_REAL_AI_MODEL:-false}
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     volumes:
       - ./backend:/app

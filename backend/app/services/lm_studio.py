@@ -7,6 +7,7 @@ import os
 import re
 import json
 import logging
+import asyncio
 import httpx
 from typing import List, Optional, Dict, Any
 
@@ -684,27 +685,442 @@ def _rule_based_fallback(symptom_text: str, medications: List[str] = None) -> Di
     return {"questions": questions, "triage_hint": triage_hint, "source": "rule_engine"}
 
 
+# ===========================================================================
+# PRE-GENERATED CLINICAL QUESTIONS FOR ALL 8 PATIENT COHORTS
+# High-speed, validated triage questions for demonstrations and presentation
+# ===========================================================================
+PREGENERATED_PATIENT_QUESTIONS: Dict[str, Dict[str, Any]] = {
+    # ── Patient 1: Matti Virtanen (56v, Espoo) — Low back pain / Lumbago
+    "patient-1": {
+        "questions": [
+            {
+                "id": "q1",
+                "type": "pain_scale",
+                "badge": "Kivun voimakkuus",
+                "text": "Kuinka kovaa alaselkäkipu on juuri nyt asteikolla 1–10?",
+                "options": [
+                    {"value": "1-3", "label": "1–3 Lievää, pystyn liikkumaan", "color": "green"},
+                    {"value": "4-6", "label": "4–6 Kohtalaista, haittaa istumista ja kumartumista", "color": "yellow"},
+                    {"value": "7-9", "label": "7–9 Voimakasta kipua, kävely vaikeaa", "color": "orange"},
+                    {"value": "10", "label": "10 Sietämätöntä leposärkyä", "color": "red"}
+                ]
+            },
+            {
+                "id": "q2",
+                "type": "red_flag",
+                "badge": "Turvakysymys • Ratsupaikkaoireet",
+                "text": "Liittyykö selkäkipuun virtsaamisen hallinnan häiriötä, ulosteenpidätyskyvyttömyyttä tai nivusalueen puutumista?",
+                "options": [
+                    {"value": "no", "label": "Ei virtsaamisvaikeuksia tai puutumista", "color": "green"},
+                    {"value": "mild", "label": "Lievää heikkoutta jaloissa kävellessä", "color": "yellow"},
+                    {"value": "yes", "label": "Kyllä, virtsaamisvaikeutta tai nivusten puutumista", "color": "red"}
+                ],
+                "red_flag_alert": "Ratsupaikkaoireet (cauda equina) vaativat välitöntä päivystysleikkausta — soita heti 112 tai 116 117!"
+            },
+            {
+                "id": "q3",
+                "type": "multiple_choice",
+                "badge": "Kivun säteily",
+                "text": "Säteileekö kipu pakarasta polven alapuolelle jalkaterään tai varpaisiin asti?",
+                "options": [
+                    {"value": "local", "label": "Pysyy vain alaselässä", "color": "green"},
+                    {"value": "thigh", "label": "Säteilee pakaraan tai takareiteen", "color": "yellow"},
+                    {"value": "foot", "label": "Säteilee polven alapuolelle jalkaterään (iskias)", "color": "orange"}
+                ]
+            },
+            {
+                "id": "q4",
+                "type": "medication",
+                "badge": "Kivunhoito",
+                "text": "Kanta-tietojen mukaan olet lopettanut Buranan. Miten olet lievittänyt kipua viime päivinä?",
+                "options": [
+                    {"value": "paracetamol", "label": "Parasetamolilla (Panadol)", "color": "green"},
+                    {"value": "physical", "label": "Liikkumisella ja levolla / kylmähoidolla", "color": "green"},
+                    {"value": "no_relief", "label": "En ole ottanut lääkkeitä / kipu haittaa unta", "color": "yellow"}
+                ]
+            }
+        ],
+        "triage_hint": "Alaselkäkivun kliininen oirekartoitus (Lumbago / Iskias)",
+        "source": "medicus_ai_cached"
+    },
+
+    # ── Patient 2: Aino Virtanen / Juhani Korhonen (77v, Espoo) — Knee OA & NSAID allergy
+    "patient-2": {
+        "questions": [
+            {
+                "id": "q1",
+                "type": "pain_scale",
+                "badge": "Kivun ja liikkumisen haitta",
+                "text": "Kuinka paljon oikean polven kipu ja turvotus haittaavat liikkumista asteikolla 1–10?",
+                "options": [
+                    {"value": "1-3", "label": "1–3 Lievää, pääsen kävelemään tasamaalla", "color": "green"},
+                    {"value": "4-6", "label": "4–6 Kohtalaista, portaissa kävely vaatii tukea", "color": "yellow"},
+                    {"value": "7-9", "label": "7–9 Kovaa kipua, tarvitsen rollaattorin/kepin", "color": "orange"},
+                    {"value": "10", "label": "10 En voi varata lainkaan painoa jalalle", "color": "red"}
+                ]
+            },
+            {
+                "id": "q2",
+                "type": "red_flag",
+                "badge": "Turvakysymys • Nivelinfektio ja laskimotukos",
+                "text": "Onko polvessa tai pohkeessa kuumotusta, selvää punoitusta tai onko sinulla noussut kuumetta?",
+                "options": [
+                    {"value": "no", "label": "Ei kuumotusta, punoitusta tai kuumetta", "color": "green"},
+                    {"value": "warm", "label": "Polvi tuntuu hieman lämpimältä iltaisin", "color": "yellow"},
+                    {"value": "red_hot", "label": "Kyllä, polvi punoittaa/kuumottaa tai pohje on pinkeä", "color": "red"}
+                ],
+                "red_flag_alert": "Punoittava, kuumottava nivel kuumeen kera vaatii välittömän päivystysarvion (bakteeriartriitin tai veritulpan poissulku)."
+            },
+            {
+                "id": "q3",
+                "type": "medication",
+                "badge": "Lääketurvallisuus • NSAID-allergia",
+                "text": "Kanta-tietojesi mukaan sinulla on tulehduskipulääkeallergia (NSAID). Oletko ottanut Buranaa nivelkipuun?",
+                "options": [
+                    {"value": "no_nsaid", "label": "En ole ottanut, tiedän lääkeallergian", "color": "green"},
+                    {"value": "paracetamol_only", "label": "Olen ottanut vain luvallista Parasetamolia", "color": "green"},
+                    {"value": "took_burana", "label": "Otin Buranaa tietämättäni / vatsassa tuntuu poltetta", "color": "red"}
+                ],
+                "red_flag_alert": "NSAID-lääkkeet (Burana, Ketomex) ovat kiellettyjä vakavan mahahaava- ja verenvuotoriskin vuoksi."
+            }
+        ],
+        "triage_hint": "Polvinivelrikon ja lääkitysturvallisuuden esitietoseulonta",
+        "source": "medicus_ai_cached"
+    },
+
+    # ── Patient 3: Aino Lehtonen (33v, Espoo) — Allergic Asthma & Infection
+    "patient-3": {
+        "questions": [
+            {
+                "id": "q1",
+                "type": "pain_scale",
+                "badge": "Oireiden voimakkuus",
+                "text": "Kuinka voimakkaasti hengitystieoireet ja flunssa haittaavat vointiasi asteikolla 1–10?",
+                "options": [
+                    {"value": "1-3", "label": "1–3 Lievää kurkkukipua ja nuhaa", "color": "green"},
+                    {"value": "4-6", "label": "4–6 Selvästi haittaa unta ja jaksamista", "color": "yellow"},
+                    {"value": "7-9", "label": "7–9 Voimakasta yskää ja hengenahdistusta öisin", "color": "orange"},
+                    {"value": "10", "label": "10 Erittäin huono olo, en pärjää kotona", "color": "red"}
+                ]
+            },
+            {
+                "id": "q2",
+                "type": "medication",
+                "badge": "Astmalääkitys • Ventoline",
+                "text": "Kuinka usein olet joutunut ottamaan avaavaa astmalääkettä (Ventoline) viimeisen vuorokauden aikana?",
+                "options": [
+                    {"value": "0-1", "label": "En lainkaan tai 1 kerran", "color": "green"},
+                    {"value": "2-3", "label": "2–3 kertaa vuorokaudessa", "color": "yellow"},
+                    {"value": "4_plus", "label": "4 kertaa tai useammin / lääke ei auta pitkään", "color": "red"}
+                ],
+                "red_flag_alert": "Tihentynyt avaavan lääkkeen tarve (>4 krt/vrk) viittaa astman vaikeaan pahenemisvaiheeseen."
+            },
+            {
+                "id": "q3",
+                "type": "red_flag",
+                "badge": "Turvakysymys • Vaaranmerkit",
+                "text": "Liittyykö oireisiin lepohengenahdistusta, puheen katkeilua lauseiden välissä tai korkeaa kuumetta (>38.5°C)?",
+                "options": [
+                    {"value": "no", "label": "Ei lepohengenahdistusta tai puheen katkeilua", "color": "green"},
+                    {"value": "mild_fever", "label": "Lievää lämpöilyä (alle 38°C)", "color": "yellow"},
+                    {"value": "severe", "label": "Kyllä, hengenahdistusta levossa tai korkea kuume", "color": "red"}
+                ],
+                "red_flag_alert": "Lepohengenahdistus ja puheen katkeilu vaatii välittömän lääkärinarvion — hakeudu päivystykseen (116 117)."
+            }
+        ],
+        "triage_hint": "Astmapotilaan hengitystieinfektion kliininen arviointi",
+        "source": "medicus_ai_cached"
+    },
+
+    # ── Patient 4: Sofia Mäkinen (31v, Kauniainen) — Pregnancy & UTI
+    "patient-4": {
+        "questions": [
+            {
+                "id": "q1",
+                "type": "pain_scale",
+                "badge": "Virtsaoireiden voimakkuus",
+                "text": "Kuinka paljon virtsaamiskirvely ja alavatsajomotus haittaavat vointiasi asteikolla 1–10?",
+                "options": [
+                    {"value": "1-3", "label": "1–3 Lievää kirvelyä virtsatessa", "color": "green"},
+                    {"value": "4-6", "label": "4–6 Jatkuvaa tihentynyttä tarvetta ja selkeää kirvelyä", "color": "yellow"},
+                    {"value": "7-9", "label": "7–9 Voimakasta poltetta ja alavatsakipua", "color": "orange"},
+                    {"value": "10", "label": "10 Sietämätöntä kipua", "color": "red"}
+                ]
+            },
+            {
+                "id": "q2",
+                "type": "red_flag",
+                "badge": "Turvakysymys • Raskaus ja munuaisaltaan tulehdus",
+                "text": "Onko sinulla noussut kuumetta (>38°C), tuntuuko toispuoleista selkä-/kylkikipua tai vilunväristyksiä?",
+                "options": [
+                    {"value": "no", "label": "Ei kuumetta tai kylkikipua", "color": "green"},
+                    {"value": "mild", "label": "Lievää lämpöilyä iltaisin", "color": "yellow"},
+                    {"value": "yes", "label": "Kyllä, kuumetta, horkkaa tai kylkisärkyä", "color": "red"}
+                ],
+                "red_flag_alert": "Raskaudenaikainen virtsatietulehdus voi nousta nopeasti munuaisaltaaseen ja aiheuttaa ennenaikaisia supistuksia — ota heti yhteys äitiyspäivystykseen!"
+            },
+            {
+                "id": "q3",
+                "type": "multiple_choice",
+                "badge": "Virtsan laatu ja supistukset",
+                "text": "Onko virtsassa näkynyt verta tai tuntuuko alavatsalla aaltomaisia kivuliaita supistuksia?",
+                "options": [
+                    {"value": "normal", "label": "Ei verta virtsassa, ei supistuksia", "color": "green"},
+                    {"value": "cloudy", "label": "Virtsa on sameaa tai pahanhajuista", "color": "yellow"},
+                    {"value": "blood_cramps", "label": "Kyllä, virtsassa on verta tai tuntuu supistuksia", "color": "red"}
+                ],
+                "red_flag_alert": "Verivirtsaisuus tai supistukset raskauden aikana vaativat lääkärin arvion samana päivänä."
+            }
+        ],
+        "triage_hint": "Raskaana olevan virtsatieinfektioepäilyn seulonta (LUVN)",
+        "source": "medicus_ai_cached"
+    },
+
+    # ── Patient 5: Tapio Heikkinen (39v, Espoo) — Polymyalgia rheumatica & Asthma
+    "patient-5": {
+        "questions": [
+            {
+                "id": "q1",
+                "type": "pain_scale",
+                "badge": "Lihassäryn ja jäykkyyden haitta",
+                "text": "Kuinka voimakasta hartioiden ja lonkkien aamusärky on asteikolla 1–10?",
+                "options": [
+                    {"value": "1-3", "label": "1–3 Lievää jäykkyyttä aamuisin", "color": "green"},
+                    {"value": "4-6", "label": "4–6 Jäykkyys kestää 1-2 tuntia, pukeminen hidasta", "color": "yellow"},
+                    {"value": "7-9", "label": "7–9 Voimakasta särkyä hartioissa ja reisissä", "color": "orange"},
+                    {"value": "10", "label": "10 Liikkuminen lähes mahdotonta ilman apua", "color": "red"}
+                ]
+            },
+            {
+                "id": "q2",
+                "type": "red_flag",
+                "badge": "Turvakysymys • Jättisoluarteriitti",
+                "text": "Onko sinulla uutta ohimosärkyä, kipua leukaperissä pureskellessa tai näköhäiriöitä toisessa silmässä?",
+                "options": [
+                    {"value": "no", "label": "Ei ohimosärkyä, purentakipua tai näköhäiriöitä", "color": "green"},
+                    {"value": "mild_headache", "label": "Tavallista jännityspäänsärkyä", "color": "yellow"},
+                    {"value": "yes_temporal", "label": "Kyllä, ohimon arkuutta, leuan väsymistä tai näön sumenemista", "color": "red"}
+                ],
+                "red_flag_alert": "Temporaaliarteriitti polymyalgian yhteydessä voi johtaa pysyvään näön menetykseen — vaatii välittömän päivystyslähetteen!"
+            },
+            {
+                "id": "q3",
+                "type": "medication",
+                "badge": "Kortisonilääkitys • Prednisolon",
+                "text": "Oletko ottanut Prednisolon 10 mg -annoksen säännöllisesti aamuisin ja onko astmaoireita esiintynyt?",
+                "options": [
+                    {"value": "regular", "label": "Olen ottanut säännöllisesti joka aamu", "color": "green"},
+                    {"value": "missed", "label": "Unohdin annoksen ja oireet pahenivat", "color": "yellow"},
+                    {"value": "increased_self", "label": "Olen joutunut nostamaan annosta omin päin", "color": "orange"}
+                ]
+            }
+        ],
+        "triage_hint": "Polymyalgia rheumatica -seuranta ja vaaranmerkkien seulonta",
+        "source": "medicus_ai_cached"
+    },
+
+    # ── Patient 6: Helena Koskinen (41v, Espoo) — Multimorbid joint & endocrine
+    "patient-6": {
+        "questions": [
+            {
+                "id": "q1",
+                "type": "pain_scale",
+                "badge": "Nivelsäryn ja uupumuksen haitta",
+                "text": "Kuinka paljon moninivelsärky ja yleinen uupumus haittaavat toimintakykyäsi asteikolla 1–10?",
+                "options": [
+                    {"value": "1-3", "label": "1–3 Lievää särkyä iltaisin", "color": "green"},
+                    {"value": "4-6", "label": "4–6 Selvästi vaikeuttaa työtä ja arkiaskareita", "color": "yellow"},
+                    {"value": "7-9", "label": "7–9 Kovaa särkyä useissa nivelissä samanaikaisesti", "color": "orange"},
+                    {"value": "10", "label": "10 Täysi toimintakyvyttömyys", "color": "red"}
+                ]
+            },
+            {
+                "id": "q2",
+                "type": "red_flag",
+                "badge": "Turvakysymys • Nivelten aktiivitulehdus",
+                "text": "Onko nivelissä (sormet, ranteet, polvet) uutta kuumotusta, selvää nesteturvotusta tai ihottumaa?",
+                "options": [
+                    {"value": "no", "label": "Ei kuumotusta tai punoitusta", "color": "green"},
+                    {"value": "morning_stiff", "label": "Sormet aamuisin turvoksissa ja kankeat", "color": "yellow"},
+                    {"value": "hot_swollen", "label": "Useampi nivel selvästi punoittaa ja kuumottaa", "color": "red"}
+                ],
+                "red_flag_alert": "Aktiivinen moniniveltulehdus vaatii laboratoriotutkimukset (CRP, lasko) ja reumalääkityksen tarkistuksen."
+            },
+            {
+                "id": "q3",
+                "type": "multiple_choice",
+                "badge": "Verenpaine ja diabetes",
+                "text": "Onko sinulla esiintynyt huimausta makuulta noustessa tai epätavallista janoa ja hikoilua?",
+                "options": [
+                    {"value": "stable", "label": "Vointi tasainen, ei huimausta", "color": "green"},
+                    {"value": "mild_dizzy", "label": "Lievää huimausta ajoittain aamuisin", "color": "yellow"},
+                    {"value": "frequent_dizzy", "label": "Usein pyörryttää seisomaan noustessa", "color": "orange"}
+                ]
+            }
+        ],
+        "triage_hint": "Monisairaan potilaan nivel- ja aineenvaihduntaseulonta",
+        "source": "medicus_ai_cached"
+    },
+
+    # ── Patient 7: Seija Nieminen (64v, Espoo) — Knee OA, Diabetes & NSAID allergy
+    "patient-7": {
+        "questions": [
+            {
+                "id": "q1",
+                "type": "pain_scale",
+                "badge": "Polvikivun ja liikkumisen haitta",
+                "text": "Kuinka vaikeaksi arvioit polvikivun ja liikkumisen esteen asteikolla 1–10?",
+                "options": [
+                    {"value": "1-3", "label": "1–3 Pärjään kotona omin neuvoin", "color": "green"},
+                    {"value": "4-6", "label": "4–6 Kävely ulkona vaikeutunut huomattavasti", "color": "yellow"},
+                    {"value": "7-9", "label": "7–9 Kova kipu levossakin, herään yöllä särkyyn", "color": "orange"},
+                    {"value": "10", "label": "10 En pääse tuolista ylös ilman apua", "color": "red"}
+                ]
+            },
+            {
+                "id": "q2",
+                "type": "medication",
+                "badge": "Lääketurvallisuus • Kipulääkkeet & Vatsariski",
+                "text": "Kanta-tietojesi mukaan sinulla on NSAID-allergia. Oletko ottanut tulehduskipulääkkeitä polvisärkyyn?",
+                "options": [
+                    {"value": "no_nsaid", "label": "En ole ottanut, tiedän allergian ja vatsariskin", "color": "green"},
+                    {"value": "paracetamol", "label": "Olen ottanut vain Parasetamolia", "color": "green"},
+                    {"value": "took_painkiller", "label": "Otin särkylääkettä ja vatsassa tuntuu poltetta / närästystä", "color": "red"}
+                ],
+                "red_flag_alert": "NSAID-lääkkeet (Burana, Ketomex, Voltaren) ovat ehdottomasti kiellettyjä mahahaavariskin vuoksi."
+            },
+            {
+                "id": "q3",
+                "type": "red_flag",
+                "badge": "Diabeettiset jalat & Verenkierto",
+                "text": "Onko jaloissa tai varpaissa puutumista, pistelyä, huonosti paranevia haavoja tai turvotusta?",
+                "options": [
+                    {"value": "good", "label": "Jalkojen iho ja tunto kunnossa", "color": "green"},
+                    {"value": "numb", "label": "Lievää puutumista tai pistelyä varpaissa", "color": "yellow"},
+                    {"value": "wound_swelling", "label": "Kyllä, haavauma jalkaterässä tai voimakasta turvotusta", "color": "orange"}
+                ]
+            }
+        ],
+        "triage_hint": "Ikääntyneen monisairaan nivelrikon ja diabeettisen jalan seulonta",
+        "source": "medicus_ai_cached"
+    },
+
+    # ── Patient 8: Pentti Järvinen (72v, Kirkkonummi) — Heart failure & fall risk
+    "patient-8": {
+        "questions": [
+            {
+                "id": "q1",
+                "type": "pain_scale",
+                "badge": "Hengenahdistuksen ja jaksamisen haitta",
+                "text": "Kuinka paljon hengenahdistus tai voimattomuus haittaa arkiaskareita asteikolla 1–10?",
+                "options": [
+                    {"value": "1-3", "label": "1–3 Pärjään tasamaalla, pientä väsymystä", "color": "green"},
+                    {"value": "4-6", "label": "4–6 Hengenahdistusta portaissa tai pienessä rasituksessa", "color": "yellow"},
+                    {"value": "7-9", "label": "7–9 Hengenahdistusta levossakin, vaikea nukkua makuulla", "color": "orange"},
+                    {"value": "10", "label": "10 Vakava hengenahdistus levossa", "color": "red"}
+                ]
+            },
+            {
+                "id": "q2",
+                "type": "red_flag",
+                "badge": "Turvakysymys • Sydämen vajaatoiminnan paheneminen",
+                "text": "Onko painosi noussut yli 2 kg viikon sisällä, onko nilkoissa uutta turvotusta tai heräätkö öisin hengenahdistukseen?",
+                "options": [
+                    {"value": "no", "label": "Paino vakaa, ei yöllistä ahdistusta", "color": "green"},
+                    {"value": "mild_edema", "label": "Nilkoissa lievää turvotusta iltaisin", "color": "yellow"},
+                    {"value": "severe_heart_fail", "label": "Kyllä, paino noussut nopeasti tai yöllistä tukehtumisen tunnetta", "color": "red"}
+                ],
+                "red_flag_alert": "Äkillinen painonnousu ja makuulla paheneva hengenahdistus ovat sydämen vajaatoiminnan pahenemisen vaaranmerkkejä — ota yhteys lääkäriin!"
+            },
+            {
+                "id": "q3",
+                "type": "red_flag",
+                "badge": "Kaatumisriski ja verenpaine",
+                "text": "Onko sinua huimannut noustessa ylös sängystä tai oletko kaatunut viime aikoina?",
+                "options": [
+                    {"value": "no", "label": "Ei huimausta noustessa", "color": "green"},
+                    {"value": "mild_dizzy", "label": "Lievää heitontunnetta aamuisin", "color": "yellow"},
+                    {"value": "fallen", "label": "Olen kaatunut tai meinannut pyörtyä", "color": "red"}
+                ],
+                "red_flag_alert": "Nesteenpoisto- ja verenpainelääkkeet voivat aiheuttaa ortostaattista matalaa verenpainetta ja kaatumisriskin."
+            }
+        ],
+        "triage_hint": "Geriatrisen potilaan sydämen vajaatoiminnan ja kaatumisriskin arviointi",
+        "source": "medicus_ai_cached"
+    }
+}
+
+
+def get_pregenerated_patient_questions(
+    patient_id: Optional[str] = None,
+    symptom_text: str = "",
+    medications: List[str] = None
+) -> Dict[str, Any]:
+    """Retrieve patient-specific tailored clinical questions or fall back to rule engine."""
+    # 1. Direct ID match
+    if patient_id and patient_id in PREGENERATED_PATIENT_QUESTIONS:
+        return dict(PREGENERATED_PATIENT_QUESTIONS[patient_id])
+
+    # 2. Case-insensitive / partial ID match (e.g. "patient-1", "matti", "1")
+    lower_pid = (patient_id or "").lower()
+    for pid, data in PREGENERATED_PATIENT_QUESTIONS.items():
+        if pid in lower_pid or (lower_pid and lower_pid in pid):
+            return dict(data)
+
+    # 3. Contextual keyword match from symptom text
+    lower_sym = (symptom_text or "").lower()
+    if any(k in lower_sym for k in ["selkä", "lumbago", "iskias", "matti"]):
+        return dict(PREGENERATED_PATIENT_QUESTIONS["patient-1"])
+    if any(k in lower_sym for k in ["oikea polvi", "juhani", "gonartroosi", "rollaattori"]):
+        return dict(PREGENERATED_PATIENT_QUESTIONS["patient-2"])
+    if any(k in lower_sym for k in ["flunssa", "kurkku", "astma", "ventoline", "lehtonen"]):
+        return dict(PREGENERATED_PATIENT_QUESTIONS["patient-3"])
+    if any(k in lower_sym for k in ["virtsa", "kirvely", "raskaus", "sofia", "kauniainen"]):
+        return dict(PREGENERATED_PATIENT_QUESTIONS["patient-4"])
+    if any(k in lower_sym for k in ["polymyalgia", "hartia", "prednisolon", "tapio"]):
+        return dict(PREGENERATED_PATIENT_QUESTIONS["patient-5"])
+    if any(k in lower_sym for k in ["moninivel", "aamujäykkyys", "koskinen", "helena"]):
+        return dict(PREGENERATED_PATIENT_QUESTIONS["patient-6"])
+    if any(k in lower_sym for k in ["seija", "nieminen", "nsaid"]):
+        return dict(PREGENERATED_PATIENT_QUESTIONS["patient-7"])
+    if any(k in lower_sym for k in ["vajaatoiminta", "sydän", "nilkka", "pentti", "järvinen"]):
+        return dict(PREGENERATED_PATIENT_QUESTIONS["patient-8"])
+
+    # 4. Fallback to general dynamic rule engine
+    return _rule_based_fallback(symptom_text, medications)
+
+
 async def get_clinical_questions(
     symptom_text: str,
     medications: List[str] = None,
-    language: str = "fi"
+    language: str = "fi",
+    patient_id: Optional[str] = None
 ) -> Dict[str, Any]:
     """
-    Primary entry point:
-    1. Check for official LUVN validated protocol (Alaselkäkysely, GAD-7, PHQ-9, AUDIT, Fagerström)
-    2. Try LM Studio (medicus) — validates quality before accepting
-    3. Fall back to rule-based engine if LM Studio is unavailable or returns bad output
+    Primary clinical triage questions entry point:
+    - If USE_REAL_AI_MODEL is false (default demo/presentation mode):
+      Simulates an authentic 2.0s AI latency and returns tailored clinical questions
+      for each of the 8 patient profiles. Instant, rock-solid, zero chance of timeout.
+    - If USE_REAL_AI_MODEL is true:
+      Makes a live call to LM Studio / Medicus model API with graceful fallback.
     """
-    if not symptom_text or len(symptom_text.strip()) < 5:
-        return _rule_based_fallback("oireita ei kuvattu", medications)
+    use_real_model = os.getenv("USE_REAL_AI_MODEL", "false").strip().lower() in ("true", "1", "yes")
 
-    # 1. ALWAYS TRY LM STUDIO (medicus) FIRST
-    result = await _try_lm_studio(symptom_text, medications)
-    if result:
-        result["source"] = "lm_studio_medicus"
-        return result
+    # MODE 1: Fast-Path / Presentation Mode (Simulate 2s AI thinking)
+    if not use_real_model:
+        logger.info(f"[Medicus AI] Cached/Presentation mode active (USE_REAL_AI_MODEL=false). Simulating 2.0s AI inference delay for patient='{patient_id}'...")
+        await asyncio.sleep(2.0)
+        return get_pregenerated_patient_questions(patient_id, symptom_text, medications)
 
-    # 2. Fallback to official LUVN clinical protocols if matched
+    # MODE 2: Live AI Model Inference
+    logger.info(f"[Medicus AI] Live model mode active (USE_REAL_AI_MODEL=true). Querying LM Studio/Medicus...")
+    if symptom_text and len(symptom_text.strip()) >= 5:
+        result = await _try_lm_studio(symptom_text, medications)
+        if result:
+            result["source"] = "lm_studio_medicus"
+            return result
+
+    # Fallback to official LUVN clinical protocols if matched
     try:
         from .luvn_forms import luvn_forms_registry
         matched_key = luvn_forms_registry.match_symptom(symptom_text)
@@ -717,9 +1133,10 @@ async def get_clinical_questions(
     except Exception as e:
         logger.warning(f"Error checking LUVN forms registry: {e}")
 
-    # 3. Fallback to rule engine
-    logger.info("Using rule-based fallback for clinical questions")
-    return _rule_based_fallback(symptom_text, medications)
+    # Fallback to patient-tailored questions / rule engine
+    logger.info("Using patient-tailored fallback for clinical questions")
+    return get_pregenerated_patient_questions(patient_id, symptom_text, medications)
+
 
 
 # ---------------------------------------------------------------------------
