@@ -55,9 +55,9 @@ export default function App () {
       const savedUserChoice = localStorage.getItem('luvn_userSelectedFontSize');
       if (savedUserChoice) return savedUserChoice;
       const saved = localStorage.getItem('luvn_fontSize');
-      return saved || 'xl'; // Default for initial elderly patient (77v Aino) is xl
+      return saved || 'normal'; // Default for initial young patient (33v Aino Lehtonen) is normal
     } catch {
-      return 'xl';
+      return 'normal';
     }
   }); // 'normal' | 'large' | 'xl'
 
@@ -189,8 +189,12 @@ export default function App () {
       const data = await api.getPatients();
       setPatients(data);
       if (data.length > 0) {
-        // Default to Matti Virtanen (patient-1, 56v, back pain) or first
-        const target = data.find(p => p.id === 'patient-1') || data[0];
+        // Default to Aino Lehtonen (33v, young patient -> normal font)
+        const target = data.find(p => 
+          (p.first_name === 'Aino' && p.last_name === 'Lehtonen') ||
+          p.id === 'patient-3' ||
+          p.id === 'SYN-ASI-1000003685'
+        ) || data[0];
         initPatient(target);
       }
     } catch (err) {
@@ -245,9 +249,10 @@ export default function App () {
       'patient-1': "Alaselkäkipu säteilee oikeaan pakaraan jo 4 päivää, Burana ei auta riittävästi.",
       'patient-2': "Olkapään ja nivelten kipu pahentunut viikon aikana, kävely ja nostaminen vaikeutunut.",
       'patient-3': "Kova kurkkukipu ja kuume (38.4°C) kestäneet 2 päivää, nieleminen sattuu.",
+      'SYN-ASI-1000003685': "Kova kurkkukipu ja kuume (38.4°C) kestäneet 2 päivää, nieleminen sattuu.",
       'patient-4': "Voimakas väsymys, palelu ja painon nousu jatkunut useita viikkoja."
     };
-    setReasonForVisit(defaultReasons[patient?.id] || "Alaselkäkipu säteilee oikeaan pakaraan jo 4 päivää, Burana ei auta riittävästi.");
+    setReasonForVisit(defaultReasons[patient?.id] || (patient?.first_name === 'Aino' ? "Kova kurkkukipu ja kuume (38.4°C) kestäneet 2 päivää, nieleminen sattuu." : "Alaselkäkipu säteilee oikeaan pakaraan jo 4 päivää, Burana ei auta riittävästi."));
     setFilledSymptomData({});
 
     // Determine font size:
