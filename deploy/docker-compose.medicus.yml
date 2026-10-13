@@ -1,0 +1,38 @@
+# ==============================================================================
+# Docker Compose for Medicus AI Service on AWS EC2 (g4dn.xlarge / NVIDIA GPU)
+# Model: Mykes/medicus (Gemma-2 2.6B Medical fine-tune)
+# ==============================================================================
+version: '3.8'
+
+services:
+  medicus-ai:
+    # Option A: vLLM (Recommended for production, high throughput, continuous batching)
+    image: vllm/vllm-openai:v0.6.3
+    container_name: medicus-model-server
+    restart: unless-stopped
+    runtime: nvidia
+    ports:
+      - "8001:8000"
+    environment:
+      - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN:-}
+    volumes:
+      - hf_cache:/root/.cache/huggingface
+    ipc: host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: >
+      --model Mykes/medicus
+      --served-model-name medicus
+      --max-model-len 4096
+      --gpu-memory-utilization 0.65
+      --dtype bfloat16
+      --port 8000
+
+volumes:
+  hf_cache:
+    name: medicus_hf_cache
