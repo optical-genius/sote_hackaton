@@ -264,8 +264,10 @@ def _repair_and_parse_json(content: str) -> Optional[Dict[str, Any]]:
     except Exception:
         pass
 
-    # 2. Fix trailing commas and double curly braces
+    # 2. Fix trailing commas and double curly braces (common in Gemma-2 outputs)
     s_fixed = re.sub(r'\]\s*\}\s*\}', ']}', s)
+    s_fixed = re.sub(r'\]\s*\}\s*,', ']},', s_fixed)
+    s_fixed = re.sub(r'\}\s*\]\s*\}\s*,', ']},', s_fixed)
     s_fixed = re.sub(r',\s*([\]\}])', r'\1', s_fixed)
     try:
         obj = json.loads(s_fixed)
@@ -274,50 +276,35 @@ def _repair_and_parse_json(content: str) -> Optional[Dict[str, Any]]:
     except Exception:
         pass
 
-    # 3. Robust regex-balanced extractor for question objects
-    q_matches = re.finditer(r'\{\s*"id"\s*:\s*"q\d+"', s)
+    # 3. Robust regex extractor for individual question objects
+    q_matches = list(re.finditer(r'\{\s*"id"\s*:\s*"q\d+"', s))
     questions = []
-    starts = [m.start() for m in q_matches]
-    for start in starts:
-        chunk = s[start:]
+    for m in q_matches:
+        start = m.start()
         depth = 0
         end_idx = None
-        for idx, ch in enumerate(chunk):
-            if ch == '{':
+        for idx in range(start, len(s)):
+            if s[idx] == '{':
                 depth += 1
-            elif ch == '}':
+            elif s[idx] == '}':
                 depth -= 1
                 if depth == 0:
                     end_idx = idx + 1
                     break
         if end_idx:
-            q_str = chunk[:end_idx]
+            q_chunk = s[start:end_idx]
+            q_chunk = re.sub(r',\s*([\]\}])', r'\1', q_chunk)
             try:
-                q_obj = json.loads(q_str)
-                # Ensure options array is present and formatted
-                opts = q_obj.get("options") or []
-                if not opts:
-                    opts = [
-                        {"value": "no", "label": "Ei oiretta", "color": "green"},
-                        {"value": "mild", "label": "Lievänä", "color": "yellow"},
-                        {"value": "yes", "label": "Kyllä, voimakkaana", "color": "red"}
-                    ]
-                else:
-                    for opt in opts:
-                        if not opt.get("color"):
-                            val = str(opt.get("value", "")).lower()
-                            if any(k in val for k in ["no", "ei", "1-3"]):
-                                opt["color"] = "green"
-                            elif any(k in val for k in ["mild", "liev", "4-6"]):
-                                opt["color"] = "yellow"
-                            elif any(k in val for k in ["7-9", "mod"]):
-                                opt["color"] = "orange"
-                            elif any(k in val for k in ["yes", "kyll", "10", "severe"]):
-                                opt["color"] = "red"
-                            else:
-                                opt["color"] = "blue"
-                q_obj["options"] = opts
-                questions.append(q_obj)
+                q_obj = json.loads(q_chunk)
+                if q_obj.get("text"):
+                    opts = q_obj.get("options") or []
+                    if not opts:
+                        q_obj["options"] = [
+                            {"value": "no", "label": "Ei oiretta", "color": "green"},
+                            {"value": "mild", "label": "Lievänä", "color": "yellow"},
+                            {"value": "yes", "label": "Kyllä, voimakkaana", "color": "red"}
+                        ]
+                    questions.append(q_obj)
             except Exception:
                 pass
 
