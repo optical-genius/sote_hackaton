@@ -1,6 +1,6 @@
 services:
   medicus:
-    image: ghcr.io/ggerganov/llama.cpp:server
+    image: ghcr.io/ggml-org/llama.cpp:server
     container_name: sopi-medicus-model
     restart: unless-stopped
     command: >
