@@ -1,4 +1,5 @@
 import React from 'react';
+import { LayoutDashboard, UserCheck, MessageSquare, FileText } from 'lucide-react';
 import HoivaDoctorHomeView from '../HoivaDoctorHomeView';
 import HoivaClientView from '../HoivaClientView';
 import SymptomChatView from '../SymptomChatView';
@@ -26,6 +27,42 @@ export default function DoctorPortal({
 }) {
   return (
     <div className="doctor-portal-root">
+      {/* Mobile Sub-Navigation Bar (visible on screens <= 768px when sidebar is hidden) */}
+      <nav className="doctor-mobile-subnav" aria-label="Lääkärin mobiilinavigointi">
+        <button
+          type="button"
+          className={`doctor-mobile-subnav-btn ${activeTab === 'koti' ? 'active' : ''}`}
+          onClick={() => onNavigateTab('koti')}
+        >
+          <LayoutDashboard size={16} />
+          <span>Työpöytä</span>
+        </button>
+        <button
+          type="button"
+          className={`doctor-mobile-subnav-btn ${activeTab === 'asiakas' ? 'active' : ''}`}
+          onClick={() => onNavigateTab('asiakas')}
+        >
+          <UserCheck size={16} />
+          <span>Potilas</span>
+        </button>
+        <button
+          type="button"
+          className={`doctor-mobile-subnav-btn ${activeTab === 'keskustelu' ? 'active' : ''}`}
+          onClick={() => onNavigateTab('keskustelu')}
+        >
+          <MessageSquare size={16} />
+          <span>Keskustelu</span>
+        </button>
+        <button
+          type="button"
+          className={`doctor-mobile-subnav-btn ${activeTab === 'yhteenveto' ? 'active' : ''}`}
+          onClick={() => onNavigateTab('yhteenveto')}
+        >
+          <FileText size={16} />
+          <span>Kooste</span>
+        </button>
+      </nav>
+
       {/* Tab: Koti (Doctor Hero Dashboard with Patients Queue and Quick Actions) */}
       {activeTab === 'koti' && (
         <HoivaDoctorHomeView
@@ -88,7 +125,7 @@ export default function DoctorPortal({
 
       {/* Tab: Yhteenveto (Professional Clinical Dashboard / Triage Desk) */}
       {activeTab === 'yhteenveto' && (
-        <div style={{ padding: '24px' }}>
+        <div className="prof-dashboard-page-wrap">
           <ProfessionalDashboardView
             targetSubmissionId={selectedSubmissionId}
             t={t}

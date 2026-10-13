@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bell, ChevronDown, Check, UserCheck, Stethoscope, Users, Shield } from 'lucide-react';
+import { Bell, ChevronDown, Check, UserCheck, Stethoscope, Users, Shield, Accessibility } from 'lucide-react';
 
 export default function TopHeader({
   currentStep = 1,
@@ -12,6 +12,7 @@ export default function TopHeader({
   patients = [],
   currentPatient,
   onSelectPatient,
+  onOpenAccessibility,
   userRole = 'Sairaanhoitaja',
   userName = 'Maija Korhonen',
   userInitials = 'MK',
@@ -24,6 +25,16 @@ export default function TopHeader({
 
   return (
     <header className="hoiva-top-header">
+      {/* Mobile Brand Logo (visible on <= 768px when sidebar is hidden) */}
+      <div className="header-mobile-brand">
+        <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 29C16 29 4 21 4 13C4 8.5 7.5 5 12 5C14.5 5 16 6.5 16 6.5C16 6.5 17.5 5 20 5C24.5 5 28 8.5 28 13C28 21 16 29 16 29Z" fill="#0ea5e9" opacity="0.85" />
+          <path d="M16 29C16 29 7 20 7 13.5C7 9.5 10 6.5 14 6.5C15.5 6.5 16 7.5 16 7.5C16 7.5 16.5 6.5 18 6.5C22 6.5 25 9.5 25 13.5C25 20 16 29 16 29Z" fill="#14b8a6" />
+          <circle cx="12" cy="11" r="2.5" fill="#38bdf8" />
+        </svg>
+        <span className="mobile-brand-title">Sopi</span>
+      </div>
+
       {/* Left/Center: View Switcher (Asiakasnäkymä vs Ammattilaisnäkymä) */}
       <div className="header-view-switch-group">
         <div className="view-mode-toggle" role="group" aria-label="Näkymän valinta">
@@ -33,7 +44,8 @@ export default function TopHeader({
             onClick={() => onViewChange && onViewChange('citizen')}
           >
             <UserCheck size={16} />
-            <span>{t?.demoSwitchAsiakas || 'Asiakasnäkymä'}</span>
+            <span className="toggle-label-full">{t?.demoSwitchAsiakas || 'Asiakasnäkymä'}</span>
+            <span className="toggle-label-short">Asiakas</span>
           </button>
           <button
             type="button"
@@ -41,7 +53,8 @@ export default function TopHeader({
             onClick={() => onViewChange && onViewChange('doctor')}
           >
             <Stethoscope size={16} />
-            <span>{t?.demoSwitchAmmattilainen || 'Ammattilaisnäkymä'}</span>
+            <span className="toggle-label-full">{t?.demoSwitchAmmattilainen || 'Ammattilaisnäkymä'}</span>
+            <span className="toggle-label-short">Lääkäri</span>
           </button>
         </div>
 
@@ -58,10 +71,23 @@ export default function TopHeader({
 
       {/* Right Controls */}
       <div className="header-actions">
+        {/* Mobile Accessibility Button */}
+        {onOpenAccessibility && (
+          <button
+            type="button"
+            className="header-icon-btn mobile-a11y-btn"
+            aria-label="Esteettömyys ja tekstikoko"
+            onClick={onOpenAccessibility}
+            title="Esteettömyys (tekstin koko & kontrasti)"
+          >
+            <Accessibility size={18} />
+          </button>
+        )}
+
         {/* Notification Bell */}
         <button
           type="button"
-          className="header-icon-btn"
+          className="header-icon-btn notification-btn"
           aria-label="Ilmoitukset"
           onClick={() => setHasUnreadNotification(false)}
         >

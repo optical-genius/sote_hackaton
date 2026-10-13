@@ -206,14 +206,17 @@ function ClinicalMarkdownRenderer({ content }) {
   }
 
   return (
-    <div style={{
-      background: '#ffffff',
-      border: '1px solid #e2e8f0',
-      borderRadius: '12px',
-      padding: '24px',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-      fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    }}>
+    <div
+      className="clinical-summary-box"
+      style={{
+        background: '#ffffff',
+        border: '1px solid #e2e8f0',
+        borderRadius: '12px',
+        padding: '24px',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+        fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      }}
+    >
       {/* Title Bar */}
       {docTitle && (
         <div style={{
@@ -249,16 +252,19 @@ function ClinicalMarkdownRenderer({ content }) {
 
       {/* Patient & Encounter Metadata Box */}
       {metaLines.length > 0 && (
-        <div style={{
-          background: '#f8fafc',
-          border: '1px solid #e2e8f0',
-          borderRadius: '8px',
-          padding: '14px 18px',
-          marginBottom: '20px',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-          gap: '12px 20px'
-        }}>
+        <div
+          className="clinical-summary-meta-grid"
+          style={{
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '8px',
+            padding: '14px 18px',
+            marginBottom: '20px',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+            gap: '12px 20px'
+          }}
+        >
           {metaLines.map((line, idx) => {
             const match = line.match(/^\*\*([^*]+)\*\*:\s*(.*)$/);
             if (match) {
@@ -755,64 +761,56 @@ export default function ProfessionalDashboardView({ targetSubmissionId, t }) {
       )}
 
       {/* Header */}
-      <div style={{
-        background: '#1e293b', color: 'white',
-        padding: '18px 24px', borderRadius: 'var(--radius-lg)',
-        marginBottom: '20px', display: 'flex',
-        alignItems: 'center', justifyContent: 'space-between',
-        flexWrap: 'wrap', gap: '16px'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ background: '#0284c7', width: 44, height: 44, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="prof-header-card">
+        <div className="prof-header-title-group">
+          <div className="prof-header-icon-box">
             <Stethoscope size={24} />
           </div>
           <div>
-            <h2 style={{ color: 'white', fontSize: '1.4rem' }}>{t.profDashboardTitle}</h2>
-            <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>{t.profSubtitle}</p>
+            <h2 className="prof-header-title">{t.profDashboardTitle}</h2>
+            <p className="prof-header-subtitle">{t.profSubtitle}</p>
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>Valitse tapaus:</span>
-          <select
-            value={activeSubmission?.submission_id || ''}
-            onChange={(e) => {
-              const sel = submissions.find(s => s.submission_id === e.target.value);
-              setActiveSubmission(sel);
-            }}
-            style={{
-              padding: '6px 12px', borderRadius: '6px',
-              background: '#334155', color: 'white',
-              border: '1px solid #475569', fontWeight: 600
-            }}
-          >
-            {submissions.map(sub => (
-              <option key={sub.submission_id} value={sub.submission_id}>
-                {sub.submission_id} — {sub.patient_snapshot?.name} ({sub.created_at})
-              </option>
-            ))}
-          </select>
-          <button
-            type="button"
-            onClick={loadSubmissions}
-            style={{ background: '#334155', border: '1px solid #475569', color: 'white', borderRadius: '6px', padding: '6px 10px', display: 'flex', alignItems: 'center' }}
-            title="Päivitä"
-          >
-            <RefreshCw size={16} />
-          </button>
+        <div className="prof-case-selector-group">
+          <span className="prof-case-selector-label">Valitse tapaus:</span>
+          <div className="prof-case-select-row">
+            <select
+              value={activeSubmission?.submission_id || ''}
+              onChange={(e) => {
+                const sel = submissions.find(s => s.submission_id === e.target.value);
+                setActiveSubmission(sel);
+              }}
+              className="prof-case-select"
+            >
+              {submissions.map(sub => (
+                <option key={sub.submission_id} value={sub.submission_id}>
+                  {sub.submission_id} — {sub.patient_snapshot?.name} ({sub.created_at})
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={loadSubmissions}
+              className="prof-case-refresh-btn"
+              title="Päivitä"
+            >
+              <RefreshCw size={16} />
+            </button>
+          </div>
         </div>
       </div>
 
       {activeSubmission ? (
         <>
           {/* Patient Banner */}
-          <div className="user-role-card" style={{ borderLeft: '6px solid var(--primary)', marginBottom: '20px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-              <div>
+          <div className="user-role-card prof-patient-card" style={{ borderLeft: '6px solid var(--primary)', marginBottom: '20px' }}>
+            <div className="prof-patient-info-row">
+              <div className="prof-patient-title-group">
                 <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t.patientBanner}</span>
                 <h3 style={{ fontSize: '1.3rem', marginTop: '2px' }}>{p?.name}</h3>
               </div>
-              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', fontSize: '0.95rem', alignItems: 'center' }}>
+              <div className="prof-patient-meta-chips">
                 <div><strong>{t.patientHetu}:</strong> <code>{p?.hetu}</code></div>
                 <div><strong>{t.patientAge}:</strong> {p?.age} v</div>
                 <div><strong>{t.patientMunicipality}:</strong> {p?.municipality}</div>
@@ -841,7 +839,7 @@ export default function ProfessionalDashboardView({ targetSubmissionId, t }) {
                 )}
               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div className="prof-patient-badge-row">
               <span className="auth-badge" style={{ fontSize: '0.85rem' }}>
                 <CheckCircle2 size={16} />
                 {activeSubmission.validation_status}
@@ -865,42 +863,42 @@ export default function ProfessionalDashboardView({ targetSubmissionId, t }) {
           )}
 
           {/* Tabs */}
-          <div style={{ display: 'flex', gap: '4px', borderBottom: '1px solid var(--border)', marginBottom: '20px', flexWrap: 'wrap' }}>
-            <button type="button" onClick={() => setActiveTab('triage')} style={tabStyle('triage')}>
+          <div className="prof-tabs-nav-bar">
+            <button type="button" onClick={() => setActiveTab('triage')} className={`prof-tab-btn ${activeTab === 'triage' ? 'active' : ''}`}>
               <Activity size={16} />
-              Potilaan triage-vastaukset
+              <span>Potilaan triage-vastaukset</span>
               {redTriageCount > 0 && (
-                <span style={{ background: '#ef4444', color: 'white', borderRadius: '9999px', padding: '1px 7px', fontSize: '0.75rem', fontWeight: 700 }}>
+                <span className="prof-tab-counter prof-counter-red">
                   {redTriageCount}
                 </span>
               )}
             </button>
-            <button type="button" onClick={() => setActiveTab('summary')} style={tabStyle('summary')}>
+            <button type="button" onClick={() => setActiveTab('summary')} className={`prof-tab-btn ${activeTab === 'summary' ? 'active' : ''}`}>
               <FileText size={16} />
-              {t.tabSummary}
+              <span>{t.tabSummary}</span>
             </button>
-            <button type="button" onClick={() => setActiveTab('history')} style={tabStyle('history')}>
+            <button type="button" onClick={() => setActiveTab('history')} className={`prof-tab-btn ${activeTab === 'history' ? 'active' : ''}`}>
               <ClipboardList size={16} />
-              LUVN-käyntihistoria & labrat
+              <span>LUVN-käyntihistoria & labrat</span>
               {p?.clinical_notes?.length > 0 && (
-                <span style={{ background: '#0284c7', color: 'white', borderRadius: '9999px', padding: '1px 7px', fontSize: '0.75rem', fontWeight: 700 }}>
+                <span className="prof-tab-counter prof-counter-blue">
                   {p.clinical_notes.length}
                 </span>
               )}
             </button>
             {p?.social_care && (
-              <button type="button" onClick={() => setActiveTab('social')} style={tabStyle('social')}>
+              <button type="button" onClick={() => setActiveTab('social')} className={`prof-tab-btn ${activeTab === 'social' ? 'active' : ''}`}>
                 <UserCheck size={16} />
-                Sosiaalihuolto (SOTE)
-                <span style={{ background: '#059669', color: 'white', borderRadius: '9999px', padding: '1px 7px', fontSize: '0.75rem', fontWeight: 700 }}>
+                <span>Sosiaalihuolto (SOTE)</span>
+                <span className="prof-tab-counter prof-counter-green">
                   Kotihoito
                 </span>
               </button>
             )}
-            <button type="button" onClick={() => setActiveTab('reconciliation')} style={tabStyle('reconciliation')}>
-              {t.tabReconciliation}
+            <button type="button" onClick={() => setActiveTab('reconciliation')} className={`prof-tab-btn ${activeTab === 'reconciliation' ? 'active' : ''}`}>
+              <span>{t.tabReconciliation}</span>
               {activeSubmission.discrepancies?.length > 0 && (
-                <span style={{ background: '#ef4444', color: 'white', borderRadius: '9999px', padding: '1px 6px', fontSize: '0.75rem', fontWeight: 700 }}>
+                <span className="prof-tab-counter prof-counter-red">
                   {activeSubmission.discrepancies.length}
                 </span>
               )}
@@ -921,7 +919,7 @@ export default function ProfessionalDashboardView({ targetSubmissionId, t }) {
                 </p>
 
                 {triageItems.length > 0 ? (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '12px' }}>
+                  <div className="prof-triage-grid">
                     {triageItems.map((item, idx) => (
                       <TriageCard key={item.question_id || idx} item={item} />
                     ))}
@@ -936,7 +934,7 @@ export default function ProfessionalDashboardView({ targetSubmissionId, t }) {
 
               {/* 2. Medicus AI Anamnesis */}
               <div className="content-card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', flexWrap: 'wrap', marginBottom: '16px' }}>
+                <div className="prof-ai-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', flexWrap: 'wrap', marginBottom: '16px' }}>
                   <div>
                     <h3 style={{ fontSize: '1.15rem', color: '#7c3aed', display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <Brain size={20} />
@@ -952,6 +950,7 @@ export default function ProfessionalDashboardView({ targetSubmissionId, t }) {
                       type="button"
                       onClick={handleGenerateAnamnesis}
                       disabled={anamnesisLoading}
+                      className="prof-ai-generate-btn"
                       style={{
                         display: 'flex', alignItems: 'center', gap: '8px',
                         background: anamnesisLoading ? '#ede9fe' : '#7c3aed',
@@ -1036,45 +1035,19 @@ export default function ProfessionalDashboardView({ targetSubmissionId, t }) {
           {/* ── TAB: Full Clinical Summary ── */}
           {activeTab === 'summary' && (
             <div className="content-card" style={{ marginTop: 0 }}>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                gap: '12px',
-                marginBottom: '18px'
-              }}>
+              <div className="prof-summary-toolbar">
                 <h3 style={{ fontSize: '1.2rem', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
                   <FileText size={20} />
                   {t.clinicalSummaryTitle}
                 </h3>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div className="prof-summary-actions">
                   {/* View Mode Toggle */}
-                  <div style={{
-                    display: 'flex',
-                    background: '#f1f5f9',
-                    padding: '3px',
-                    borderRadius: '8px',
-                    border: '1px solid #e2e8f0'
-                  }}>
+                  <div className="prof-summary-view-toggle">
                     <button
                       type="button"
                       onClick={() => setSummaryViewMode('formatted')}
-                      style={{
-                        border: 'none',
-                        background: summaryViewMode === 'formatted' ? '#ffffff' : 'transparent',
-                        color: summaryViewMode === 'formatted' ? '#0f172a' : '#64748b',
-                        fontWeight: summaryViewMode === 'formatted' ? 600 : 500,
-                        fontSize: '0.82rem',
-                        padding: '6px 12px',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        boxShadow: summaryViewMode === 'formatted' ? '0 1px 2px rgba(0,0,0,0.06)' : 'none',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px'
-                      }}
+                      className={summaryViewMode === 'formatted' ? 'active' : ''}
                       title="Näytä muotoiltu kliininen näkymä"
                     >
                       <Eye size={14} />
@@ -1083,20 +1056,7 @@ export default function ProfessionalDashboardView({ targetSubmissionId, t }) {
                     <button
                       type="button"
                       onClick={() => setSummaryViewMode('raw')}
-                      style={{
-                        border: 'none',
-                        background: summaryViewMode === 'raw' ? '#ffffff' : 'transparent',
-                        color: summaryViewMode === 'raw' ? '#0f172a' : '#64748b',
-                        fontWeight: summaryViewMode === 'raw' ? 600 : 500,
-                        fontSize: '0.82rem',
-                        padding: '6px 12px',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        boxShadow: summaryViewMode === 'raw' ? '0 1px 2px rgba(0,0,0,0.06)' : 'none',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px'
-                      }}
+                      className={summaryViewMode === 'raw' ? 'active' : ''}
                       title="Näytä raaka Markdown-lähdekoodi"
                     >
                       <Code size={14} />
@@ -1106,9 +1066,8 @@ export default function ProfessionalDashboardView({ targetSubmissionId, t }) {
 
                   <button
                     type="button"
-                    className="btn-secondary"
+                    className="btn-secondary prof-summary-copy-btn"
                     onClick={handleCopySummary}
-                    style={{ minHeight: '36px', fontSize: '0.88rem' }}
                     title="Kopioi teksti potilastietojärjestelmään"
                   >
                     <Copy size={16} />
@@ -1226,28 +1185,30 @@ export default function ProfessionalDashboardView({ targetSubmissionId, t }) {
                     <Activity size={20} />
                     Laboratoriotulokset (HUS / LUVN vastausarkisto)
                   </h3>
-                  <table className="data-table" style={{ marginTop: '12px' }}>
-                    <thead>
-                      <tr>
-                        <th>Tutkimus</th>
-                        <th>Koodi</th>
-                        <th>Tulos</th>
-                        <th>Päivämäärä</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {p.lab_results.map((lab, lidx) => (
-                        <tr key={lidx}>
-                          <td style={{ fontWeight: 700 }}>{lab.test_name}</td>
-                          <td><code>{lab.test_code}</code></td>
-                          <td>
-                            <strong style={{ color: '#0369a1' }}>{lab.numeric_value}</strong> {lab.unit}
-                          </td>
-                          <td>{lab.date || '2025'}</td>
+                  <div className="table-responsive-wrapper">
+                    <table className="data-table" style={{ marginTop: '12px' }}>
+                      <thead>
+                        <tr>
+                          <th>Tutkimus</th>
+                          <th>Koodi</th>
+                          <th>Tulos</th>
+                          <th>Päivämäärä</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {p.lab_results.map((lab, lidx) => (
+                          <tr key={lidx}>
+                            <td style={{ fontWeight: 700 }}>{lab.test_name}</td>
+                            <td><code>{lab.test_code}</code></td>
+                            <td>
+                              <strong style={{ color: '#0369a1' }}>{lab.numeric_value}</strong> {lab.unit}
+                            </td>
+                            <td>{lab.date || '2025'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )}
             </div>
@@ -1256,7 +1217,7 @@ export default function ProfessionalDashboardView({ targetSubmissionId, t }) {
           {/* ── TAB: Social Care & Home Care (SOTE Integration) ── */}
           {activeTab === 'social' && p?.social_care && (
             <div className="content-card">
-              <div style={{
+              <div className="prof-sote-banner" style={{
                 background: '#ecfdf5',
                 border: '1.5px solid #a7f3d0',
                 borderRadius: '10px',
@@ -1336,26 +1297,28 @@ export default function ProfessionalDashboardView({ targetSubmissionId, t }) {
               </p>
 
               {activeSubmission.discrepancies?.length > 0 ? (
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>{t.thMedication}</th>
-                      <th>Muutoksen tyyppi</th>
-                      <th>{t.thNote}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {activeSubmission.discrepancies.map((disc, idx) => (
-                      <tr key={idx}>
-                        <td style={{ fontWeight: 700 }}>{disc.item}</td>
-                        <td>
-                          <span className="diff-badge-stopped">{disc.type}</span>
-                        </td>
-                        <td>{disc.details}</td>
+                <div className="table-responsive-wrapper">
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th>{t.thMedication}</th>
+                        <th>Muutoksen tyyppi</th>
+                        <th>{t.thNote}</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {activeSubmission.discrepancies.map((disc, idx) => (
+                        <tr key={idx}>
+                          <td style={{ fontWeight: 700 }}>{disc.item}</td>
+                          <td>
+                            <span className="diff-badge-stopped">{disc.type}</span>
+                          </td>
+                          <td>{disc.details}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               ) : (
                 <div className="notice-box notice-success">
                   <CheckCircle2 size={20} />
@@ -1366,27 +1329,22 @@ export default function ProfessionalDashboardView({ targetSubmissionId, t }) {
           )}
 
           {/* Action Bar */}
-          <div style={{
-            background: 'white', border: '1px solid var(--border)',
-            borderRadius: 'var(--radius-md)', padding: '16px 20px',
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            flexWrap: 'wrap', gap: '12px', marginTop: '20px'
-          }}>
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-              <button type="button" className="btn-primary" onClick={() => handleAction('Otettu käsittelyyn vastaanotolla')}>
+          <div className="prof-bottom-action-bar">
+            <div className="prof-action-buttons-group">
+              <button type="button" className="btn-primary prof-action-btn" onClick={() => handleAction('Otettu käsittelyyn vastaanotolla')}>
                 <CheckCircle2 size={18} />
                 <span>{t.btnTakeCase}</span>
               </button>
-              <button type="button" className="btn-secondary" onClick={() => window.open('https://luvn.fi', '_blank')}>
+              <button type="button" className="btn-secondary prof-action-btn" onClick={() => window.open('https://luvn.fi', '_blank')}>
                 <ExternalLink size={16} />
                 <span>{t.btnOpenEHR}</span>
               </button>
-              <button type="button" className="btn-secondary" onClick={() => handleAction('Lähetetty tarkennuspyyntö potilaalle')}>
+              <button type="button" className="btn-secondary prof-action-btn" onClick={() => handleAction('Lähetetty tarkennuspyyntö potilaalle')}>
                 <MessageSquare size={16} />
                 <span>{t.btnRequestInfo}</span>
               </button>
             </div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+            <div className="prof-action-id-label">
               Id: <strong>{activeSubmission.submission_id}</strong>
             </div>
           </div>

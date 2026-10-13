@@ -637,19 +637,8 @@ export default function CitizenHomeView ({
                 <span className="ai-disclosure-text">{t?.aiDisclosure || 'Tekoälyavustaja auttaa esitietojen kokoamisessa. Asioit tekoälyavustajan kanssa — et lääkärin tai hoitajan.'}</span>
                 <button
                   type="button"
+                  className="ai-disclosure-link-btn"
                   onClick={() => window.dispatchEvent(new CustomEvent('hoivapolku_open_privacy', { detail: 'ai' }))}
-                  style={{
-                    marginLeft: 'auto',
-                    background: 'none',
-                    border: 'none',
-                    color: '#0284c7',
-                    fontSize: '0.78rem',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    textDecoration: 'underline',
-                    padding: '2px 6px',
-                    whiteSpace: 'nowrap'
-                  }}
                 >
                   {t?.btnLearnAiPrivacy || 'Miten tekoäly käyttää tietojasi?'}
                 </button>

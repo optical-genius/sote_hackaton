@@ -397,6 +397,7 @@ export default function App () {
           patients={patients}
           currentPatient={currentPatient}
           onSelectPatient={handleSelectPatientId}
+          onOpenAccessibility={() => setIsA11yOpen(true)}
           userRole={displayUserRole}
           userName={displayUserName}
           userInitials={displayUserInitials}
