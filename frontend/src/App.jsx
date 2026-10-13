@@ -250,7 +250,11 @@ export default function App () {
       'patient-2': "Olkapään ja nivelten kipu pahentunut viikon aikana, kävely ja nostaminen vaikeutunut.",
       'patient-3': "Kova kurkkukipu ja kuume (38.4°C) kestäneet 2 päivää, nieleminen sattuu.",
       'SYN-ASI-1000003685': "Kova kurkkukipu ja kuume (38.4°C) kestäneet 2 päivää, nieleminen sattuu.",
-      'patient-4': "Voimakas väsymys, palelu ja painon nousu jatkunut useita viikkoja."
+      'patient-4': "Voimakas väsymys, palelu ja painon nousu jatkunut useita viikkoja.",
+      'patient-5': "Nivelten ja lihasten särkyä usealla alueella, aamujäykkyyttä yli tunnin.",
+      'patient-6': "Voimakasta uupumusta, nivelkipua ja huimausta kestänyt useita kuukausia.",
+      'patient-7': "Polven ja lonkan nivelkipu pahentunut, käveleminen ja rappusten nousu vaikeaa.",
+      'patient-8': "Monilääkityksen tarkistus, huimausta seisomaan noustessa ja hengenahdistusta rasituksessa."
     };
     setReasonForVisit(defaultReasons[patient?.id] || (patient?.first_name === 'Aino' ? "Kova kurkkukipu ja kuume (38.4°C) kestäneet 2 päivää, nieleminen sattuu." : "Alaselkäkipu säteilee oikeaan pakaraan jo 4 päivää, Burana ei auta riittävästi."));
     setFilledSymptomData({});
@@ -279,7 +283,12 @@ export default function App () {
       const subMap = {
         'patient-1': 'LUVN-2026-98124',
         'patient-2': 'LUVN-2026-98125',
-        'patient-3': 'LUVN-2026-98126'
+        'patient-3': 'LUVN-2026-98126',
+        'patient-4': 'LUVN-2026-98127',
+        'patient-5': 'LUVN-2026-98128',
+        'patient-6': 'LUVN-2026-98129',
+        'patient-7': 'LUVN-2026-98130',
+        'patient-8': 'LUVN-2026-98131'
       };
       if (subMap[id]) {
         setSelectedSubmissionId(subMap[id]);

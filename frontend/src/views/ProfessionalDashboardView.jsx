@@ -381,6 +381,235 @@ function ClinicalMarkdownRenderer({ content }) {
   );
 }
 
+// ── Versatile Clinical Markdown Viewer for EHR Notes & Social Care ───────────
+function ClinicalMarkdownViewer({ content }) {
+  if (!content) return null;
+
+  const lines = content.split('\n');
+  const elements = [];
+  let currentList = null;
+
+  const getSectionStyle = (title) => {
+    const t = title.toLowerCase();
+    if (t.includes('riski') || t.includes('allergia') || t.includes('varoitus')) {
+      return { bg: '#fff7ed', border: '#f97316', text: '#c2410c', icon: '⚠️' };
+    }
+    if (t.includes('ratkaisu') || t.includes('myönnetty') || t.includes('päätös')) {
+      return { bg: '#ecfdf5', border: '#059669', text: '#065f46', icon: '⚖️' };
+    }
+    if (t.includes('suunnitelma') || t.includes('hoito') || t.includes('palvelu')) {
+      return { bg: '#f0fdf4', border: '#16a34a', text: '#15803d', icon: '📋' };
+    }
+    if (t.includes('status') || t.includes('nykytila') || t.includes('tulosyy') || t.includes('esitiedot')) {
+      return { bg: '#eff6ff', border: '#2563eb', text: '#1d4ed8', icon: '🩺' };
+    }
+    if (t.includes('täydennettäv') || t.includes('puuttuu')) {
+      return { bg: '#faf5ff', border: '#9333ea', text: '#7e22ce', icon: '📝' };
+    }
+    return { bg: '#f1f5f9', border: '#0284c7', text: '#0369a1', icon: '🔹' };
+  };
+
+  const flushList = () => {
+    if (currentList && currentList.length > 0) {
+      elements.push(
+        <ul key={`ul-${elements.length}`} style={{
+          margin: '6px 0 14px',
+          paddingLeft: '20px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '6px'
+        }}>
+          {currentList.map((item, idx) => {
+            const kv = item.match(/^([A-Za-z0-9åäöÅÄÖ\s\-_/()]+?):\s*(.+)$/);
+            return (
+              <li key={idx} style={{ fontSize: '0.9rem', color: '#334155', lineHeight: 1.55 }}>
+                {kv ? (
+                  <>
+                    <strong style={{ color: '#0f172a', fontWeight: 650 }}>{kv[1]}: </strong>
+                    <span>{renderInline(kv[2])}</span>
+                  </>
+                ) : (
+                  renderInline(item)
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      );
+      currentList = null;
+    }
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const raw = lines[i];
+    const trimmed = raw.trim();
+
+    if (!trimmed) {
+      flushList();
+      continue;
+    }
+
+    // Heading 1: # Title
+    if (trimmed.startsWith('# ')) {
+      flushList();
+      const title = trimmed.replace(/^#\s+/, '');
+      elements.push(
+        <h3 key={`h1-${i}`} style={{
+          fontSize: '1.2rem',
+          fontWeight: 750,
+          color: '#0f172a',
+          margin: '18px 0 12px',
+          paddingBottom: '8px',
+          borderBottom: '2px solid #0284c7',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          <span>📄</span>
+          <span>{title}</span>
+        </h3>
+      );
+      continue;
+    }
+
+    // Heading 2: ## SECTION
+    if (trimmed.startsWith('## ')) {
+      flushList();
+      const heading = trimmed.replace(/^##\s+/, '');
+      const s = getSectionStyle(heading);
+      elements.push(
+        <div key={`h2-${i}`} style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          margin: '18px 0 8px',
+          padding: '6px 12px',
+          background: s.bg,
+          borderLeft: `4px solid ${s.border}`,
+          borderRadius: '4px'
+        }}>
+          <span style={{ fontSize: '0.95rem' }}>{s.icon}</span>
+          <span style={{
+            fontSize: '0.85rem',
+            fontWeight: 750,
+            color: s.text,
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px'
+          }}>
+            {heading}
+          </span>
+        </div>
+      );
+      continue;
+    }
+
+    // Heading 3: ### Subtitle
+    if (trimmed.startsWith('### ')) {
+      flushList();
+      const sub = trimmed.replace(/^###\s+/, '');
+      elements.push(
+        <h4 key={`h3-${i}`} style={{
+          fontSize: '0.98rem',
+          fontWeight: 700,
+          color: '#1e293b',
+          margin: '12px 0 6px'
+        }}>
+          {sub}
+        </h4>
+      );
+      continue;
+    }
+
+    // Heading 4: #### Small
+    if (trimmed.startsWith('#### ')) {
+      flushList();
+      const sub = trimmed.replace(/^####\s+/, '');
+      elements.push(
+        <h5 key={`h4-${i}`} style={{
+          fontSize: '0.9rem',
+          fontWeight: 650,
+          color: '#475569',
+          margin: '8px 0 4px'
+        }}>
+          {sub}
+        </h5>
+      );
+      continue;
+    }
+
+    // Horizontal Rule: --- or ***
+    if (trimmed === '---' || trimmed === '***') {
+      flushList();
+      elements.push(
+        <hr key={`hr-${i}`} style={{ border: 'none', borderTop: '1px solid #e2e8f0', margin: '14px 0' }} />
+      );
+      continue;
+    }
+
+    // List item: - or * or •
+    if (trimmed.startsWith('- ') || trimmed.startsWith('* ') || trimmed.startsWith('• ')) {
+      const itemText = trimmed.replace(/^[-*•]\s+/, '');
+      if (!currentList) currentList = [];
+      currentList.push(itemText);
+      continue;
+    }
+
+    flushList();
+
+    // Check if line is a clinical date log line, e.g. "2024-07-19: F41.9 Määrittämätön..."
+    const dateMatch = trimmed.match(/^(\d{4}-\d{2}-\d{2}):\s*(.+)$/);
+    if (dateMatch) {
+      elements.push(
+        <div key={`dt-${i}`} style={{
+          display: 'flex',
+          alignItems: 'baseline',
+          gap: '10px',
+          margin: '5px 0',
+          padding: '6px 10px',
+          background: '#f8fafc',
+          borderRadius: '6px',
+          border: '1px solid #e2e8f0'
+        }}>
+          <code style={{
+            fontWeight: 700,
+            color: '#0369a1',
+            fontSize: '0.82rem',
+            background: '#e0f2fe',
+            padding: '2px 6px',
+            borderRadius: '4px'
+          }}>
+            {dateMatch[1]}
+          </code>
+          <span style={{ fontSize: '0.9rem', color: '#334155', lineHeight: 1.5 }}>
+            {renderInline(dateMatch[2])}
+          </span>
+        </div>
+      );
+      continue;
+    }
+
+    // Regular paragraph
+    elements.push(
+      <p key={`p-${i}`} style={{
+        margin: '6px 0',
+        fontSize: '0.9rem',
+        lineHeight: 1.6,
+        color: '#334155'
+      }}>
+        {renderInline(trimmed)}
+      </p>
+    );
+  }
+
+  flushList();
+
+  return (
+    <div className="clinical-md-view" style={{ fontSize: '0.9rem', color: '#334155' }}>
+      {elements}
+    </div>
+  );
+}
+
 // ── Main Component ────────────────────────────────────────────────────────────
 export default function ProfessionalDashboardView({ targetSubmissionId, t }) {
   const [submissions, setSubmissions]     = useState([]);
@@ -975,14 +1204,10 @@ export default function ProfessionalDashboardView({ targetSubmissionId, t }) {
                           )}
                         </div>
                         <div style={{
-                          padding: '16px',
-                          whiteSpace: 'pre-wrap',
-                          fontSize: '0.9rem',
-                          lineHeight: '1.6',
-                          color: '#334155',
-                          fontFamily: 'inherit'
+                          padding: '16px 20px',
+                          background: '#ffffff'
                         }}>
-                          {note.note_text}
+                          <ClinicalMarkdownViewer content={note.note_text} />
                         </div>
                       </div>
                     ))}
@@ -1072,16 +1297,13 @@ export default function ProfessionalDashboardView({ targetSubmissionId, t }) {
                     📋 Hoito- ja toteuttamissuunnitelma (voimassa: {p.social_care.plan_date || 'toistaiseksi'} alkaen)
                   </h4>
                   <div style={{
-                    background: '#f8fafc',
+                    background: '#ffffff',
                     border: '1px solid #e2e8f0',
                     borderRadius: '8px',
-                    padding: '16px',
-                    whiteSpace: 'pre-wrap',
-                    fontSize: '0.88rem',
-                    lineHeight: '1.6',
-                    color: '#334155'
+                    padding: '20px',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
                   }}>
-                    {p.social_care.plan_text}
+                    <ClinicalMarkdownViewer content={p.social_care.plan_text} />
                   </div>
                 </div>
               )}
@@ -1092,16 +1314,13 @@ export default function ProfessionalDashboardView({ targetSubmissionId, t }) {
                     📄 Virallinen päätösluonnos
                   </h4>
                   <div style={{
-                    background: '#f8fafc',
+                    background: '#ffffff',
                     border: '1px solid #e2e8f0',
                     borderRadius: '8px',
-                    padding: '16px',
-                    whiteSpace: 'pre-wrap',
-                    fontSize: '0.88rem',
-                    lineHeight: '1.6',
-                    color: '#334155'
+                    padding: '20px',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
                   }}>
-                    {p.social_care.decision_text}
+                    <ClinicalMarkdownViewer content={p.social_care.decision_text} />
                   </div>
                 </div>
               )}

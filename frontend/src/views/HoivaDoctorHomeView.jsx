@@ -59,7 +59,7 @@ export default function HoivaDoctorHomeView ({
       submissionId: 'LUVN-2026-98126',
       initials: 'AL',
       name: 'Aino Lehtonen',
-      age: 32,
+      age: 33,
       living: 'Itseasiointi (Espoo)',
       badge: '⚠️ Ampisilliiniallergia',
       status: 'ready',
@@ -69,16 +69,68 @@ export default function HoivaDoctorHomeView ({
     },
     {
       id: 'patient-4',
-      submissionId: null,
+      submissionId: 'LUVN-2026-98127',
       initials: 'MM',
       name: 'Marja Mäkinen',
       age: 65,
       living: 'Kotona asuminen (Espoo)',
       badge: 'Kilpirauhasen vajaatoiminta',
-      status: 'missing',
-      statusLabel: 'Puuttuu oirekartoitus',
-      time: '13:00',
-      actionLabel: 'Täydennä'
+      status: 'ready',
+      statusLabel: 'Valmiit esitiedot • Selkäkipu',
+      time: '11:15',
+      actionLabel: 'Avaa kooste'
+    },
+    {
+      id: 'patient-5',
+      submissionId: 'LUVN-2026-98128',
+      initials: 'TH',
+      name: 'Tapio Heikkinen',
+      age: 39,
+      living: 'Kotona asuminen (Espoo)',
+      badge: '⚠️ Sulfonamidiallergia • 9 lääkettä',
+      status: 'ready',
+      statusLabel: 'Valmiit esitiedot • Polymyalgia & Astma',
+      time: '12:00',
+      actionLabel: 'Avaa kooste'
+    },
+    {
+      id: 'patient-6',
+      submissionId: 'LUVN-2026-98129',
+      initials: 'HK',
+      name: 'Helena Koskinen',
+      age: 41,
+      living: 'Kotona asuminen (Espoo)',
+      badge: '📋 11 diagnoosia • 7 lääkettä',
+      status: 'ready',
+      statusLabel: 'Valmiit esitiedot • Verenpaine & Nivelkipu',
+      time: '13:30',
+      actionLabel: 'Avaa kooste'
+    },
+    {
+      id: 'patient-7',
+      submissionId: 'LUVN-2026-98130',
+      initials: 'SN',
+      name: 'Seija Nieminen',
+      age: 64,
+      living: 'Kotona asuminen (Espoo)',
+      badge: '⚠️ NSAID-allergia • Diabetes',
+      status: 'ready',
+      statusLabel: 'Valmiit esitiedot • Nivelrikko & Diabetes',
+      time: '14:15',
+      actionLabel: 'Avaa kooste'
+    },
+    {
+      id: 'patient-8',
+      submissionId: 'LUVN-2026-98131',
+      initials: 'PJ',
+      name: 'Pentti Järvinen',
+      age: 72,
+      living: 'Kotihoito (Kirkkonummi)',
+      badge: '🏠 Geriatrinen monilääkitys (6 aktiivista)',
+      status: 'ready',
+      statusLabel: 'Valmiit esitiedot • Huimaus & Sydän',
+      time: '15:00',
+      actionLabel: 'Avaa kooste'
     }
   ];
 
@@ -95,7 +147,7 @@ export default function HoivaDoctorHomeView ({
               tervetuloa takaisin!
             </h1>
             <p className="hero-banner-desc">
-              Tänään sinulla on 3 asiakasta. Autamme sinua saamaan nopeasti valmiit esitiedot ja
+              Tänään sinulla on {todayPatients.length} asiakasta. Autamme sinua saamaan nopeasti valmiit esitiedot ja
               ehdotamme puuttuvia tietoja, jotta voit keskittyä tärkeimpään – asiakkaaseen.
             </p>
           </div>

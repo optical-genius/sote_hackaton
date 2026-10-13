@@ -22,6 +22,7 @@ import {
   X,
   Stethoscope,
   Edit3,
+  Database,
 } from 'lucide-react';
 import { api } from '../../services/api';
 
@@ -123,6 +124,84 @@ function ProgressBar ({ current, total }) {
       </div>
     </div>
   );
+}
+
+// ─── CLINICAL REASON CHIPS BUILDER (DYNAMIC FROM KANTA HISTORY) ─────────────
+function getPersonalizedSymptomChips(patient, diagnoses = [], medications = [], t) {
+  const chips = [];
+  const seenTexts = new Set();
+
+  const addChip = (text, service = 'yleislaakari', isKanta = true) => {
+    if (!text || seenTexts.has(text)) return;
+    seenTexts.add(text);
+    chips.push({ text, service, isKanta });
+  };
+
+  const dxCodes = (diagnoses || []).map(d => (d.code || '').toUpperCase());
+  const dxTitles = (diagnoses || []).map(d => (d.title_fi || '').toLowerCase());
+  const medNames = (medications || []).map(m => (m.name || m.indication || '').toLowerCase());
+
+  // 1. Respiratory / Asthma
+  if (dxCodes.some(c => c.startsWith('J45')) || medNames.some(m => m.includes('ventoline') || m.includes('flutiform') || m.includes('astma'))) {
+    addChip('Astmaoireiden paheneminen, hengenahdistus tai yöllinen yskä', 'yleislaakari');
+  }
+
+  // 2. Hypertension / Cardiovascular
+  if (dxCodes.some(c => c.startsWith('I10') || c.startsWith('I11')) || medNames.some(m => m.includes('ramipril') || m.includes('amlodipiini') || m.includes('verenpaine'))) {
+    addChip('Verenpaineen nousu tai heittely, aamupäänsärky ja huimaus', 'yleislaakari');
+  }
+
+  // 3. Diabetes
+  if (dxCodes.some(c => c.startsWith('E11')) || medNames.some(m => m.includes('metformiini') || m.includes('diabetes'))) {
+    addChip('Verensokeriarvojen heittely tai jalkaterän pistely', 'yleislaakari');
+  }
+
+  // 4. Back pain / Sciatica
+  if (dxCodes.some(c => c.startsWith('M54')) || dxTitles.some(t => t.includes('selkä') || t.includes('lumbago'))) {
+    addChip('Alaselkäkipu säteilee pakaraan tai alaraajaan', 'yleislaakari');
+  }
+
+  // 5. Joint osteoarthritis (Knee / Hip)
+  if (dxCodes.some(c => c.startsWith('M17') || c.startsWith('M16') || c.startsWith('M19')) || dxTitles.some(t => t.includes('nivelrikko') || t.includes('polvi'))) {
+    addChip('Nivelrikon kipu pahentunut ja liikkuminen vaikeutunut', 'fysioterapia');
+  }
+
+  // 6. Fibromyalgia / Polymyalgia / Chronic widespread pain
+  if (dxCodes.some(c => c.startsWith('M79')) || dxTitles.some(t => t.includes('fibromyalgia') || t.includes('lihassärky'))) {
+    addChip('Laaja-alainen lihas- ja nivelkipu sekä voimakas aamujäykkyys', 'yleislaakari');
+  }
+
+  // 7. Thyroid / Hypothyroidism
+  if (dxCodes.some(c => c.startsWith('E03')) || medNames.some(m => m.includes('thyroxin') || m.includes('kilpirauhanen'))) {
+    addChip('Voimakas uupumus, palelu ja turvotus', 'yleislaakari');
+  }
+
+  // 8. Acute infection / Throat / Flu (like Aino Lehtonen scenario)
+  if (patient?.first_name === 'Aino' || dxTitles.some(t => t.includes('infektio') || t.includes('flunssa'))) {
+    addChip('Kova kurkkukipu, nielemiskipu ja kuume (38.4°C)', 'yleislaakari');
+    addChip('Flunssaoireet, poskiontelo- ja otsasärky', 'yleislaakari');
+  }
+
+  // 9. Polypharmacy (multiple active medications)
+  const activeMeds = (medications || []).filter(m => m.is_active !== false);
+  if (activeMeds.length >= 4) {
+    addChip('Reseptien uusiminen ja monilääkityksen haittavaikutusarvio', 'yleislaakari');
+  }
+
+  // Fallback defaults if fewer than 4 chips
+  const defaults = [
+    { text: t?.chip1 || 'Alaselkäkipu säteilee pakaraan, 4 päivää', service: 'yleislaakari', isKanta: false },
+    { text: t?.chip2 || 'Polven kipu ja kävely vaikeutunut sauvoilla', service: 'fysioterapia', isKanta: false },
+    { text: t?.chip3 || 'Korkea kuume ja heikotus', service: 'yleislaakari', isKanta: false },
+    { text: t?.chip4 || 'Verenpaineen heittely ja huimaus', service: 'yleislaakari', isKanta: false }
+  ];
+
+  for (const d of defaults) {
+    if (chips.length >= 4) break;
+    addChip(d.text, d.service, d.isKanta);
+  }
+
+  return chips.slice(0, 4);
 }
 
 // ─── MAIN COMPONENT ──────────────────────────────────────────────────────────
@@ -518,22 +597,39 @@ export default function CitizenHomeView ({
                 {t?.step1Hint || 'Kerro omin sanoin tai valitse alla olevista esimerkeistä — tekoäly ja hoitotiimi ohjaavat sinut oikeaan paikkaan.'}
               </p>
 
-              {/* Quick chips */}
-              <div className="chips-container-grid" style={{ marginBottom: 14 }}>
-                {[
-                  { text: t?.chip1 || 'Alaselkäkipu säteilee pakaraan, 4 päivää', service: 'yleislaakari' },
-                  { text: t?.chip2 || 'Polven kipu ja kävely vaikeutunut sauvoilla', service: 'fysioterapia' },
-                  { text: t?.chip3 || 'Korkea kuume ja heikotus', service: 'yleislaakari' },
-                  { text: t?.chip4 || 'Verenpaineen heittely ja huimaus', service: 'yleislaakari' },
-                ].map((chip, i) => (
-                  <button key={i} type="button"
-                    className={`clinical-chip-btn ${reasonForVisit === chip.text ? 'active' : ''}`}
-                    onClick={() => { onChangeReason(chip.text); onSelectService(chip.service); }}
-                  >
-                    {chip.text}
-                  </button>
-                ))}
-              </div>
+              {/* Quick chips with Kanta personalization */}
+              {(() => {
+                const chips = getPersonalizedSymptomChips(patient, diagnoses, medications, t);
+                const hasKantaCustomized = chips.some(c => c.isKanta);
+                return (
+                  <div style={{ marginBottom: 14 }}>
+                    {hasKantaCustomized && (
+                      <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '6px', 
+                        fontSize: '0.78rem', 
+                        color: '#0284c7', 
+                        fontWeight: 600, 
+                        marginBottom: '6px' 
+                      }}>
+                        <Database size={13} />
+                        <span>Ehdotukset Kanta-sairauskertomuksesi ja lääkityksesi perusteella:</span>
+                      </div>
+                    )}
+                    <div className="chips-container-grid">
+                      {chips.map((chip, i) => (
+                        <button key={i} type="button"
+                          className={`clinical-chip-btn ${reasonForVisit === chip.text ? 'active' : ''}`}
+                          onClick={() => { onChangeReason(chip.text); onSelectService(chip.service); }}
+                        >
+                          {chip.text}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* EU AI Act Art. 50 — AI disclosure notice */}
               <div className="ai-disclosure-notice" role="note" aria-label="Tekoälyilmoitus">

@@ -128,6 +128,46 @@ CURATED_PATIENT_METADATA: Dict[str, Dict[str, Any]] = {
         "email": "marja.makinen@esimerkki.fi",
         "scenario_tag": "Alaselkäkipu & Kilpirauhasen vajaatoiminta",
         "allergies": []
+    },
+    "SYN-ASI-1000010399": {
+        "alias_id": "patient-5",
+        "first_name": "Tapio",
+        "last_name": "Heikkinen",
+        "phone": "+358 40 567 8901",
+        "email": "tapio.heikkinen@esimerkki.fi",
+        "scenario_tag": "Monisairas: 9 diagnoosia & 9 lääkettä (Polymyalgia, verenpaine, astma)",
+        "allergies": [
+            AllergyItem(allergen="Sulfonamidit", reaction="Iho-oireet ja kutina", severity="Kohtalainen")
+        ]
+    },
+    "SYN-ASI-1000001400": {
+        "alias_id": "patient-6",
+        "first_name": "Helena",
+        "last_name": "Koskinen",
+        "phone": "+358 50 678 9012",
+        "email": "helena.koskinen@esimerkki.fi",
+        "scenario_tag": "Krooninen monisairaus: 11 diagnoosia & 7 lääkettä",
+        "allergies": []
+    },
+    "SYN-ASI-1000008405": {
+        "alias_id": "patient-7",
+        "first_name": "Seija",
+        "last_name": "Nieminen",
+        "phone": "+358 45 789 0123",
+        "email": "seija.nieminen@esimerkki.fi",
+        "scenario_tag": "Ikääntynyt monisairas: 11 diagnoosia & 7 lääkettä",
+        "allergies": [
+            AllergyItem(allergen="Tulehduskipulääkkeet (NSAID)", reaction="Ylävatsakipu ja närästys", severity="Lievä")
+        ]
+    },
+    "SYN-ASI-1000005066": {
+        "alias_id": "patient-8",
+        "first_name": "Pentti",
+        "last_name": "Järvinen",
+        "phone": "+358 40 890 1234",
+        "email": "pentti.jarvinen@esimerkki.fi",
+        "scenario_tag": "Geriatrinen monilääkitys: 8 diagnoosia & 6 aktiivista lääkettä",
+        "allergies": []
     }
 }
 
@@ -373,7 +413,7 @@ class LuvnDataLoader:
     def get_all_patients(self) -> List[PatientProfile]:
         """Return all curated demonstration patients."""
         self._lazy_init()
-        aliases = ["patient-1", "patient-2", "patient-3", "patient-4"]
+        aliases = [meta["alias_id"] for meta in CURATED_PATIENT_METADATA.values()]
         return [self._profile_cache[alias] for alias in aliases if alias in self._profile_cache]
 
 

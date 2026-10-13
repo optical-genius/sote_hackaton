@@ -140,7 +140,7 @@ export default function TopHeader({
                   <div style={{ textAlign: 'left', flex: 1 }}>
                     <div style={{ fontWeight: 600 }}>{p.first_name} {p.last_name} ({p.age}v)</div>
                     <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                      {p.has_guardian_access ? 'Omaishoitaja Maija asioi valtuutettuna' : 'Itseasiointi (Matti itse)'}
+                      {p.has_guardian_access ? 'Omaishoitaja Maija asioi valtuutettuna' : `Itseasiointi (${p.first_name} itse)`}
                     </div>
                   </div>
                   {currentPatient?.id === p.id && <Check size={14} style={{ color: '#0284c7' }} />}

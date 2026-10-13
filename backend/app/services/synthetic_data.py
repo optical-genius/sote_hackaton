@@ -258,6 +258,257 @@ SYNTHETIC_PATIENTS: Dict[str, PatientProfile] = {
         recent_visits=[
             "2026-02-14: Äitiysneuvola, Kauniainen (Ensikäynti rvk 9+2)"
         ]
+    ),
+    "patient-5": PatientProfile(
+        id="patient-5",
+        first_name="Tapio",
+        last_name="Heikkinen",
+        masked_hetu="140587-***Y",
+        age=39,
+        gender="Mies",
+        municipality="Espoo",
+        phone="+358 40 567 8901",
+        email="tapio.heikkinen@esimerkki.fi",
+        preferred_language="fi",
+        has_guardian_access=False,
+        medications=[
+            MedicationItem(
+                id="med-5-1",
+                name="Prednisolon (H02AB06)",
+                dosage="10 mg",
+                schedule="Aamuisin",
+                is_active=True,
+                indication="Polymyalgia rheumatica",
+                started_year=2024
+            ),
+            MedicationItem(
+                id="med-5-2",
+                name="Ramipriili (C09AA05)",
+                dosage="5 mg",
+                schedule="1 tabletti aamuisin",
+                is_active=True,
+                indication="Verenpainetauti",
+                started_year=2023
+            ),
+            MedicationItem(
+                id="med-5-3",
+                name="Symbicort (Budesonidi/Formoteroli)",
+                dosage="160/4.5 µg",
+                schedule="1 inhalaatio 2 krt/vrk",
+                is_active=True,
+                indication="Astma",
+                started_year=2022
+            )
+        ],
+        diagnoses=[
+            DiagnosisItem(
+                code="M35.3",
+                title_fi="Polymyalgia rheumatica",
+                title_sv="Polymyalgia rheumatica",
+                title_en="Polymyalgia rheumatica",
+                diagnosed_year=2024,
+                is_relevant_for_visit=True
+            ),
+            DiagnosisItem(
+                code="J45.9",
+                title_fi="Määrittämätön astma",
+                title_sv="Astma, ospecificerad",
+                title_en="Asthma, unspecified",
+                diagnosed_year=2022,
+                is_relevant_for_visit=True
+            )
+        ],
+        allergies=[
+            AllergyItem(allergen="Sulfonamidit", reaction="Iho-oireet ja kutina", severity="Kohtalainen")
+        ],
+        scenario_tag="Monisairas: 9 diagnoosia & 9 lääkettä (Polymyalgia, verenpaine, astma)"
+    ),
+    "patient-6": PatientProfile(
+        id="patient-6",
+        first_name="Helena",
+        last_name="Koskinen",
+        masked_hetu="140585-***X",
+        age=41,
+        gender="Nainen",
+        municipality="Espoo",
+        phone="+358 50 678 9012",
+        email="helena.koskinen@esimerkki.fi",
+        preferred_language="fi",
+        has_guardian_access=False,
+        medications=[
+            MedicationItem(
+                id="med-6-1",
+                name="Amlodipiini (C08CA01)",
+                dosage="5 mg",
+                schedule="1 tabletti aamuisin",
+                is_active=True,
+                indication="Verenpainetauti",
+                started_year=2023
+            ),
+            MedicationItem(
+                id="med-6-2",
+                name="Losartaani (C09CA01)",
+                dosage="50 mg",
+                schedule="1 tabletti aamuisin",
+                is_active=True,
+                indication="Verenpainetauti",
+                started_year=2023
+            ),
+            MedicationItem(
+                id="med-6-4",
+                name="Metformiini (A10BA02)",
+                dosage="500 mg",
+                schedule="1 tabletti 2 krt/vrk",
+                is_active=True,
+                indication="Tyypin 2 diabetes",
+                started_year=2024
+            )
+        ],
+        diagnoses=[
+            DiagnosisItem(
+                code="I10",
+                title_fi="Essentiaalinen verenpainetauti",
+                title_sv="Essentiell hypertoni",
+                title_en="Essential hypertension",
+                diagnosed_year=2023,
+                is_relevant_for_visit=True
+            ),
+            DiagnosisItem(
+                code="E11.9",
+                title_fi="Tyypin 2 diabetes",
+                title_sv="Diabetes typ 2",
+                title_en="Type 2 diabetes mellitus",
+                diagnosed_year=2024,
+                is_relevant_for_visit=True
+            ),
+            DiagnosisItem(
+                code="M19.9",
+                title_fi="Nivelrikko (Artroosi)",
+                title_sv="Artros",
+                title_en="Osteoarthritis",
+                diagnosed_year=2023,
+                is_relevant_for_visit=True
+            )
+        ],
+        allergies=[],
+        scenario_tag="Krooninen monisairaus: 11 diagnoosia & 7 lääkettä"
+    ),
+    "patient-7": PatientProfile(
+        id="patient-7",
+        first_name="Seija",
+        last_name="Nieminen",
+        masked_hetu="140562-***X",
+        age=64,
+        gender="Nainen",
+        municipality="Espoo",
+        phone="+358 45 789 0123",
+        email="seija.nieminen@esimerkki.fi",
+        preferred_language="fi",
+        has_guardian_access=False,
+        medications=[
+            MedicationItem(
+                id="med-7-1",
+                name="Metformiini (A10BA02)",
+                dosage="1000 mg",
+                schedule="1 tabletti 2 krt/vrk",
+                is_active=True,
+                indication="Tyypin 2 diabetes",
+                started_year=2022
+            ),
+            MedicationItem(
+                id="med-7-2",
+                name="Bisoprololi (C07AB07)",
+                dosage="5 mg",
+                schedule="1 tabletti aamuisin",
+                is_active=True,
+                indication="Verenpainetauti",
+                started_year=2021
+            )
+        ],
+        diagnoses=[
+            DiagnosisItem(
+                code="M17.1",
+                title_fi="Polvinivelrikko",
+                title_sv="Knäledsartros",
+                title_en="Gonarthrosis",
+                diagnosed_year=2023,
+                is_relevant_for_visit=True
+            ),
+            DiagnosisItem(
+                code="E11.9",
+                title_fi="Tyypin 2 diabetes",
+                title_sv="Diabetes typ 2",
+                title_en="Type 2 diabetes mellitus",
+                diagnosed_year=2022,
+                is_relevant_for_visit=True
+            )
+        ],
+        allergies=[
+            AllergyItem(allergen="Tulehduskipulääkkeet (NSAID)", reaction="Ylävatsakipu ja närästys", severity="Kohtalainen")
+        ],
+        scenario_tag="Ikääntynyt monisairas: 11 diagnoosia & 7 lääkettä"
+    ),
+    "patient-8": PatientProfile(
+        id="patient-8",
+        first_name="Pentti",
+        last_name="Järvinen",
+        masked_hetu="140554-***Y",
+        age=72,
+        gender="Mies",
+        municipality="Kirkkonummi",
+        phone="+358 40 890 1234",
+        email="pentti.jarvinen@esimerkki.fi",
+        preferred_language="fi",
+        has_guardian_access=False,
+        medications=[
+            MedicationItem(
+                id="med-8-1",
+                name="Ramipriili (C09AA05)",
+                dosage="5 mg",
+                schedule="1 tabletti aamuisin",
+                is_active=True,
+                indication="Verenpainetauti",
+                started_year=2020
+            ),
+            MedicationItem(
+                id="med-8-2",
+                name="Furosemidi (C03CA01)",
+                dosage="20 mg",
+                schedule="1 tabletti aamuisin",
+                is_active=True,
+                indication="Nesteenpoisto",
+                started_year=2021
+            ),
+            MedicationItem(
+                id="med-8-3",
+                name="Bisoprololi (C07AB07)",
+                dosage="2.5 mg",
+                schedule="1 tabletti aamuisin",
+                is_active=True,
+                indication="Sydämen rytmihäiriöt",
+                started_year=2020
+            )
+        ],
+        diagnoses=[
+            DiagnosisItem(
+                code="I10",
+                title_fi="Essentiaalinen verenpainetauti",
+                title_sv="Essentiell hypertoni",
+                title_en="Essential hypertension",
+                diagnosed_year=2019,
+                is_relevant_for_visit=True
+            ),
+            DiagnosisItem(
+                code="I50.9",
+                title_fi="Sydämen vajaatoiminta",
+                title_sv="Hjärtsvikt",
+                title_en="Heart failure",
+                diagnosed_year=2021,
+                is_relevant_for_visit=True
+            )
+        ],
+        allergies=[],
+        scenario_tag="Geriatrinen monilääkitys: 8 diagnoosia & 6 aktiivista lääkettä"
     )
 }
 
